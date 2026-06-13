@@ -107,23 +107,12 @@ export default function RegisterPage() {
           </Button>
         </form>
 
+        {/* Footer */}
         <div className="mt-6 text-center text-sm text-muted-foreground">
           Sudah punya akun?{" "}
           <Link href="/login" className="text-primary font-semibold hover:underline">
             Masuk di sini
           </Link>
-        </div>
-
-        <div className="mt-8 pt-6 border-t border-border">
-          <p className="text-xs text-center text-muted-foreground mb-4 font-medium">✨ Manfaat bergabung:</p>
-          <div className="grid grid-cols-2 gap-3 text-xs">
-            {["Belajar sambil bermain", "Dapatkan XP & Level", "Diskusi dengan teman", "Gratis selamanya"].map((item, i) => (
-              <div key={i} className="flex items-center gap-2 text-foreground">
-                <CheckCircle2 className="w-4 h-4 text-success flex-shrink-0" />
-                <span>{item}</span>
-              </div>
-            ))}
-          </div>
         </div>
       </Card>
     </div>
