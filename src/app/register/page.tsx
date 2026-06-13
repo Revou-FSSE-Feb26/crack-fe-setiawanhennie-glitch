@@ -4,6 +4,7 @@ import Link from "next/link";
 import Button from "@/components/UI/button";
 import Input from "@/components/UI/input";
 import Card from "@/components/UI/card";
+import DarkModeToggle from "@/components/UI/darkmodetoggle";
 import { useState } from "react";
 import { User, Mail, School, GraduationCap, Lock } from "lucide-react";
 
@@ -37,6 +38,10 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-pixel-pattern relative">
         <div className="absolute inset-0 bg-background/80 backdrop-blur-[1px]"></div>
+
+      <div className="absolute top-4 right-4 z-20">
+        <DarkModeToggle />
+      </div>
 
       <Card className="w-full max-w-lg animate-in fade-in slide-in-from-bottom-4 duration-500 z-10" padding="lg">
         {/* Header */}
