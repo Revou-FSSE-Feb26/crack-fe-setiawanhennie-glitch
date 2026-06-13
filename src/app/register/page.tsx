@@ -107,7 +107,8 @@ export default function RegisterPage() {
           </div>
 
           <Button type="button" variant="outline" className="w-full">
-            Lanjutkan dengan Google
+            <img src="/google-icon-logo-svgrepo-com.svg" alt="Google Logo" className="w-5 h-5" />
+            Lanjutkan dengan Google 
           </Button>
         </form>
 
