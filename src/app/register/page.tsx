@@ -5,7 +5,7 @@ import Button from "@/components/UI/button";
 import Input from "@/components/UI/input";
 import Card from "@/components/UI/card";
 import { useState } from "react";
-import { User, Mail, School, GraduationCap, Lock, CheckCircle2 } from "lucide-react";
+import { User, Mail, School, GraduationCap, Lock } from "lucide-react";
 
 export default function RegisterPage() {
   const [password, setPassword] = useState("");
@@ -35,11 +35,10 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background relative overflow-hidden">
-      {/* Subtle Background Gradient */}
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-secondary/20 via-background to-background"></div>
+    <div className="min-h-screen flex items-center justify-center p-4 bg-pixel-pattern relative">
+        <div className="absolute inset-0 bg-background/80 backdrop-blur-[1px]"></div>
 
-      <Card className="w-full max-w-lg animate-in fade-in slide-in-from-bottom-4 duration-500" padding="lg">
+      <Card className="w-full max-w-lg animate-in fade-in slide-in-from-bottom-4 duration-500 z-10" padding="lg">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-secondary/20 text-secondary-foreground mb-4">

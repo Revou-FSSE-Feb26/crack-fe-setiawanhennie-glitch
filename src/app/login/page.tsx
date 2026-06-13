@@ -4,19 +4,18 @@ import Link from "next/link";
 import Button from "@/components/UI/button";
 import Input from "@/components/UI/input";
 import Card from "@/components/UI/card";
-import { Mail, Lock, Gamepad2 } from "lucide-react";
+import { Mail, Lock, GraduationCap } from "lucide-react";
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background relative overflow-hidden">
-      {/* Subtle Background Gradient */}
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background"></div>
-      
-      <Card className="w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-500" padding="lg">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-pixel-pattern relative">
+      <div className="absolute inset-0 bg-background/80 backdrop-blur-[1px]"></div>
+
+      <Card className="w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-500 relative z-10" padding="lg">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-primary/10 text-primary mb-4">
-            <Gamepad2 className="w-7 h-7" />
+            <GraduationCap className="w-10 h-10" />
           </div>
           <h1 className="text-3xl font-bold font-heading text-foreground mb-2">
             Selamat Datang!
@@ -63,7 +62,7 @@ export default function LoginPage() {
         <div className="mt-8 text-center text-sm text-muted-foreground">
           Belum punya akun?{" "}
           <Link href="/register" className="text-primary font-semibold hover:underline">
-            Daftar gratis
+            Daftar disini
           </Link>
         </div>
       </Card>
