@@ -10,9 +10,9 @@ import { Mail, Lock, GraduationCap } from "lucide-react";
 export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-pixel-pattern relative">
-      <div className="absolute inset-0 bg-background/80 backdrop-blur-[1px] z-0"></div>
+      <div className="absolute inset-0 bg-background/80 backdrop-blur-[1px] z-0 pointer-events-none"></div>
 
-      <div className="absolute top-4 right-4 z-50">
+      <div className="absolute top-4 right-4 z-50 pointer-events-auto">
         <DarkModeToggle />
       </div>
       

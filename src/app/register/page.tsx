@@ -37,7 +37,7 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-pixel-pattern relative">
-        <div className="absolute inset-0 bg-background/80 backdrop-blur-[1px]"></div>
+        <div className="absolute inset-0 bg-background/80 backdrop-blur-[1px] pointer-events-none"></div>
 
       <div className="absolute top-4 right-4 z-20">
         <DarkModeToggle />
