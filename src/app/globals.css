@@ -136,13 +136,70 @@
   }
 }
 
+/* Base Pixel Pattern*/
 .bg-pixel-pattern {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--background);
+  background-image: 
+    radial-gradient(var(--primary) 1.5px, transparent 1.5px),
+    radial-gradient(var(--accent) 1.5px, transparent 1.5px);
+  background-size: 30px 30px;
+  background-position: 0 0, 15px 15px;
+  opacity: 0.4;   
+  mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
+}
+
+/* Top-to-Bottom Pulse Wave */
+.bg-pixel-pattern::after {
+  content: '';
+  position: absolute;
+  inset: 0;
   background-image: 
     radial-gradient(var(--primary) 1.5px, transparent 1.5px),
     radial-gradient(var(--accent) 1.5px, transparent 1.5px);
   background-size: 30px 30px;
   background-position: 0 0, 15px 15px;
   opacity: 1;
-  mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
-  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 15%,
+    black 25%,
+    transparent 40%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 15%,
+    black 25%,
+    transparent 40%
+  );
+  
+  /* Make the mask larger than the screen so it can scroll */
+  -webkit-mask-size: 100% 300%;
+  mask-size: 100% 300%;
+  
+  /* Animate the mask position from top to bottom */
+  animation: pixel-pulse-down 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none;
+}
+
+/* The Wave Animation */
+@keyframes pixel-pulse-down {
+  0% { 
+    mask-position: 0% 100%; 
+    opacity: 0.5;
+  }
+  25% { 
+    opacity: 0.5; 
+  }
+  75% { 
+    opacity: 0.5; 
+  }
+  100% { 
+    mask-position: 100% 0%; 
+    opacity: 0; 
+  }
 }
