@@ -1,7 +1,7 @@
 "use client";
 
 import { Zap, Target, Trophy, Users } from "lucide-react";
-import StatCard from "@/components/UI/statcard";
+import StatCard from "@/components/ui/statcard";
 
 export default function DashboardPage() {
   return (

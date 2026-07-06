@@ -1,21 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import Button from "@/components/UI/button";
-import Input from "@/components/UI/input";
-import Card from "@/components/UI/card";
-import DarkModeToggle from "@/components/UI/darkmodetoggle";
+import { Button } from "@/components/ui/button";
+import Input from "@/components/ui/input";
+import Card from "@/components/ui/card";
+import DarkModeToggle from "@/components/ui/darkmodetoggle";
 import { Mail, Lock, GraduationCap } from "lucide-react";
 
 export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-pixel-pattern relative">
+      {/* Background overlay */}
       <div className="absolute inset-0 bg-background/80 backdrop-blur-[1px] z-0 pointer-events-none"></div>
 
+      {/* Dark Mode Toggle */}
       <div className="absolute top-4 right-4 z-50 pointer-events-auto">
         <DarkModeToggle />
       </div>
       
+      {/* Main Card */}
       <Card className="w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-500 relative z-10" padding="lg">
         {/* Header */}
         <div className="text-center mb-8">
@@ -66,7 +69,8 @@ export default function LoginPage() {
         {/* Footer */}
         <div className="mt-8 text-center text-sm text-muted-foreground">
           Belum punya akun?{" "}
-          <Link href="/register" className="text-primary font-semibold hover:underline">
+          {/* Changed href to /sign-up to match your main page */}
+          <Link href="/sign-up" className="text-primary font-semibold hover:underline">
             Daftar disini
           </Link>
         </div>
