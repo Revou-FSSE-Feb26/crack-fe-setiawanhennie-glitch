@@ -1,16 +1,14 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
-import { headers } from "next/headers"
 import { auth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import {
-  Sparkles,
   Trophy,
   Flame,
   Award,
   Zap,
   Target,
-  Briefcase,
+  GraduationCap, 
 } from "lucide-react"
 
 export default async function HomePage() {
@@ -20,31 +18,31 @@ export default async function HomePage() {
   const features = [
     {
       icon: Zap,
-      title: "Earn XP & Level Up",
-      desc: "Every module and assessment earns experience points. Track your journey from Beginner to Expert.",
+      title: "Dapatkan XP & Naik Level",
+      desc: "Setiap pelajaran dan kuis memberimu poin pengalaman. Pantau perjalananmu dari Pemula hingga Legenda.",
     },
     {
       icon: Award,
-      title: "Unlock Skill Badges",
-      desc: "Collect verified achievements for course completions, top scores, and mastery milestones.",
+      title: "Buka Lencana Prestasi",
+      desc: "Kumpulkan lencana untuk pencapaian, nilai sempurna, dan streak belajar harian.",
     },
     {
       icon: Trophy,
-      title: "Climb the Leaderboard",
-      desc: "Compete with peers and see who's the top learner in your field this week.",
+      title: "Naiki Papan Peringkat",
+      desc: "Bersaing dengan teman sekelas dan lihat siapa pelajar terbaik minggu ini.",
     },
     {
       icon: Flame,
-      title: "Build Daily Streaks",
-      desc: "Upskill a little every day and keep your streak alive for bonus rewards and perks.",
+      title: "Pertahankan Streak Harian",
+      desc: "Belajar sedikit setiap hari dan pertahankan streak-mu untuk mendapatkan hadiah bonus.",
     },
   ]
 
-  const skillTracks = [
-    { emoji: "💻", name: "Tech & Code", color: "bg-[oklch(0.95_0.04_220)]" },
-    { emoji: "📈", name: "Business & Finance", color: "bg-[oklch(0.95_0.05_150)]" },
-    { emoji: "🎨", name: "Design & Creative", color: "bg-[oklch(0.96_0.05_80)]" },
-    { emoji: "🗣️", name: "Language & Communication", color: "bg-[oklch(0.95_0.04_20)]" },
+  const subjects = [
+    { emoji: "🔢", name: "Matematika", color: "bg-[oklch(0.95_0.04_220)]" },
+    { emoji: "🔬", name: "Sains & IPA", color: "bg-[oklch(0.95_0.05_150)]" },
+    { emoji: "📚", name: "Bahasa & Sastra", color: "bg-[oklch(0.96_0.05_80)]" },
+    { emoji: "🌍", name: "Sejarah & Sosial", color: "bg-[oklch(0.95_0.04_20)]" },
   ]
 
   return (
@@ -53,16 +51,16 @@ export default async function HomePage() {
       <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5">
         <div className="flex items-center gap-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-            <Sparkles className="h-5 w-5" />
+            <GraduationCap className="h-5 w-5" />
           </div>
           <span className="font-heading text-xl font-extrabold">NusaSkillz</span>
         </div>
         <div className="flex items-center gap-2">
           <Button asChild variant="ghost">
-            <Link href="/sign-in">Sign in</Link>
+            <Link href="/sign-in">Masuk</Link>
           </Button>
           <Button asChild className="font-heading">
-            <Link href="/sign-up">Get started</Link>
+            <Link href="/sign-up">Mulai Belajar</Link>
           </Button>
         </div>
       </header>
@@ -71,20 +69,20 @@ export default async function HomePage() {
       <section className="mx-auto max-w-6xl px-4 pt-10 pb-16 text-center">
         <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full bg-secondary px-4 py-1.5 text-sm font-semibold text-secondary-foreground">
           <Target className="h-4 w-4" />
-          Upskilling made engaging for ambitious professionals
+          Belajar jadi seru untuk semua pelajar
         </div>
         <h1 className="mx-auto max-w-3xl text-balance font-heading text-5xl font-extrabold leading-tight tracking-tight md:text-6xl">
-          Turn upskilling into an{" "}
-          <span className="text-primary">epic career journey</span>
+          Jadikan belajar sebuah{" "}
+          <span className="text-primary">petualangan seru!</span>
         </h1>
         <p className="mx-auto mt-5 max-w-xl text-pretty text-lg text-muted-foreground leading-relaxed">
-          NusaSkillz makes professional growth addictive. Complete modules, ace
-          assessments, earn XP, and unlock badges across tech, business, design,
-          and communication.
+          NusaSkillz membuat belajar jadi ketagihan. Selesaikan pelajaran, 
+          kerjakan kuis, kumpulkan XP, dan buka lencana di Matematika, IPA, 
+          Bahasa, dan Sejarah.
         </p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Button asChild size="lg" className="font-heading text-base">
-            <Link href="/sign-up">Start your journey — it&apos;s free</Link>
+            <Link href="/sign-up">Mulai petualanganmu</Link>
           </Button>
           <Button
             asChild
@@ -92,13 +90,13 @@ export default async function HomePage() {
             variant="outline"
             className="font-heading text-base"
           >
-            <Link href="/sign-in">I already have an account</Link>
+            <Link href="/sign-in">Saya sudah punya akun</Link>
           </Button>
         </div>
 
-        {/* Skill track pills */}
+        {/* Subject pills */}
         <div className="mt-14 flex flex-wrap items-center justify-center gap-3">
-          {skillTracks.map((s) => (
+          {subjects.map((s) => (
             <div
               key={s.name}
               className={`flex items-center gap-2 rounded-2xl ${s.color} px-4 py-3 shadow-sm`}
@@ -119,10 +117,10 @@ export default async function HomePage() {
         <div className="mx-auto max-w-6xl px-4">
           <div className="mb-10 text-center">
             <h2 className="font-heading text-3xl font-extrabold">
-              Why learners love NusaSkillz
+              Kenapa pelajar suka NusaSkillz?
             </h2>
             <p className="mt-2 text-muted-foreground">
-              Game mechanics that keep professionals motivated and coming back.
+              Sistem game yang membuatmu terus termotivasi dan semangat belajar.
             </p>
           </div>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -149,23 +147,24 @@ export default async function HomePage() {
       {/* CTA */}
       <section className="mx-auto max-w-3xl px-4 py-20 text-center">
         <div className="flex justify-center">
+          {/* Changed to GraduationCap to match your login/register pages */}
           <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-accent text-accent-foreground">
-            <Briefcase className="h-8 w-8" />
+            <GraduationCap className="h-8 w-8" />
           </div>
         </div>
         <h2 className="mt-6 text-balance font-heading text-3xl font-extrabold md:text-4xl">
-          Ready to level up your career?
+          Siap menjadikan belajar sebuah petualangan?
         </h2>
         <p className="mt-3 text-muted-foreground">
-          Join NusaSkillz today and start earning XP in minutes.
+          Bergabung dengan NusaSkillz hari ini dan mulai kumpulkan XP dalam hitungan menit.
         </p>
         <Button asChild size="lg" className="mt-8 font-heading text-base">
-          <Link href="/sign-up">Create your free account</Link>
+          <Link href="/sign-up">Buat akun gratis</Link>
         </Button>
       </section>
 
       <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
-        <p>NusaSkillz — Gamified upskilling for ambitious minds.</p>
+        <p>NusaSkillz — Belajar ala game untuk pelajar Indonesia.</p>
       </footer>
     </main>
   )
