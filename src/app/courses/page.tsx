@@ -11,60 +11,29 @@ import {
   Sparkles
 } from "lucide-react"
 
-export default async function CoursesPage() {
-  const session = await auth.api.getSession()
-  // if (!session?.user) redirect("/") 
+interface Course {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  emoji: string;
+  color: string;
+  isLocked: boolean;
+  lessons?: any[];
+}
 
-  // Mock Data
+export default async function CoursesPage() {
+  const res = await fetch('http://localhost:3001/courses', { 
+    cache: 'no-store' 
+  })
+  const courses: Course[] = await res.json()
+
   const user = { name: "Budi Santoso" }
 
-  // Mock Courses Data (Added a 'locked' state for gamification)
-  const courses = [
-    { 
-      slug: "matematika", 
-      title: "Matematika", 
-      emoji: "🔢", 
-      desc: "Kuasai angka, aljabar, dan geometri dari dasar hingga mahir.", 
-      lessons: 20, 
-      completed: 15,
-      color: "bg-blue-500/10 text-blue-600 border-blue-500/20",
-      locked: false 
-    },
-    { 
-      slug: "sains", 
-      title: "Sains & IPA", 
-      emoji: "🔬", 
-      desc: "Jelajahi biologi, fisika, dan kimia melalui eksperimen virtual.", 
-      lessons: 15, 
-      completed: 6,
-      color: "bg-green-500/10 text-green-600 border-green-500/20",
-      locked: false 
-    },
-    { 
-      slug: "bahasa", 
-      title: "Bahasa & Sastra", 
-      emoji: "📚", 
-      desc: "Tingkatkan kemampuan membaca, menulis, dan bedah karya sastra.", 
-      lessons: 10, 
-      completed: 9,
-      color: "bg-orange-500/10 text-orange-600 border-orange-500/20",
-      locked: false 
-    },
-    { 
-      slug: "sejarah", 
-      title: "Sejarah & Sosial", 
-      emoji: "🌍", 
-      desc: "Telusuri perjalanan peradaban manusia dan peristiwa dunia.", 
-      lessons: 18, 
-      completed: 0,
-      color: "bg-purple-500/10 text-purple-600 border-purple-500/20",
-      locked: true // Locked until they reach Level 6!
-    },
-  ]
-
+  // 1. THE RETURN STATEMENT WAS MISSING HERE!
   return (
     <main className="min-h-svh bg-background">
-      {/* Navbar (Same as Dashboard) */}
+      {/* Navbar */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <Link href="/dashboard" className="flex items-center gap-2">
@@ -97,7 +66,6 @@ export default async function CoursesPage() {
           <h1 className="font-heading text-3xl font-extrabold">Jelajah Kursus</h1>
           <p className="text-muted-foreground mt-1">Pilih petualangan belajarmu selanjutnya.</p>
           
-          {/* Gamified Daily Quest Banner */}
           <div className="mt-6 relative overflow-hidden rounded-3xl bg-gradient-to-r from-primary to-purple-600 p-6 text-primary-foreground shadow-lg">
             <div className="relative z-10 flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
@@ -115,7 +83,6 @@ export default async function CoursesPage() {
                 <p className="text-xs opacity-80">Progress</p>
               </div>
             </div>
-            {/* Decorative background element */}
             <div className="absolute top-0 right-0 -mt-4 -mr-4 h-32 w-32 bg-white/10 rounded-full blur-2xl"></div>
           </div>
         </div>
@@ -133,14 +100,22 @@ export default async function CoursesPage() {
         {/* Courses Grid */}
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-2">
           {courses.map((course) => {
-            const progress = course.lessons > 0 ? Math.round((course.completed / course.lessons) * 100) : 0;
+            // Add safety checks
+            const lessonCount = course.lessons ? course.lessons.length : 0;
+            const completedCount = 0; 
+            const progress = lessonCount > 0 ? Math.round((completedCount / lessonCount) * 100) : 0;
+            
+            // Safety check for color classes
+            const colorClasses = course.color ? course.color.split(' ') : ['bg-gray-500/10', 'text-gray-600'];
+            const textColor = colorClasses[1] || 'text-gray-600';
+            const bgColor = textColor.replace('text-', 'bg-');
             
             return (
               <div 
                 key={course.slug} 
-                className={`group relative rounded-3xl bg-card p-6 ring-1 ring-border transition-all hover:shadow-lg hover:-translate-y-1 ${course.locked ? 'opacity-70' : ''}`}
+                className={`group relative rounded-3xl bg-card p-6 ring-1 ring-border transition-all hover:shadow-lg hover:-translate-y-1 ${course.isLocked ? 'opacity-70' : ''}`}
               >
-                {course.locked && (
+                {course.isLocked && (
                   <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-muted px-3 py-1 rounded-full text-xs font-bold text-muted-foreground">
                     <Lock className="h-3 w-3" />
                     Terkunci
@@ -148,24 +123,24 @@ export default async function CoursesPage() {
                 )}
 
                 <div className="flex items-start gap-4">
-                  <div className={`flex h-14 w-14 items-center justify-center rounded-2xl text-3xl border ${course.color}`}>
+                  <div className={`flex h-14 w-14 items-center justify-center rounded-2xl text-3xl border ${course.color || 'bg-gray-500/10 text-gray-600 border-gray-500/20'}`}>
                     {course.emoji}
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-heading text-xl font-bold truncate">{course.title}</h3>
-                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{course.desc}</p>
+                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{course.description}</p>
                   </div>
                 </div>
 
                 {/* Progress Bar */}
                 <div className="mt-5">
                   <div className="flex justify-between text-xs font-bold mb-2">
-                    <span className="text-muted-foreground">{course.completed} dari {course.lessons} pelajaran</span>
-                    <span className={course.color.split(' ')[1]}>{progress}%</span>
+                    <span className="text-muted-foreground">{completedCount} dari {lessonCount} pelajaran</span>
+                    <span className={textColor}>{progress}%</span>
                   </div>
                   <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
                     <div 
-                      className={`h-full rounded-full transition-all ${course.color.split(' ')[1].replace('text-', 'bg-')}`} 
+                      className={`h-full rounded-full transition-all ${bgColor}`} 
                       style={{ width: `${progress}%` }}
                     ></div>
                   </div>
@@ -173,27 +148,27 @@ export default async function CoursesPage() {
 
                 {/* Action Button */}
                 <div className="mt-5">
-                  {course.locked ? (
+                  {course.isLocked ? (
                     <Button disabled className="w-full" variant="outline">
                       Buka di Level 6
                     </Button>
-                  ) : course.completed === 0 ? (
+                  ) : completedCount === 0 ? (
                     <Button asChild className="w-full font-heading">
-                      <Link href={`/courses/${course.slug}`}>
+                      <Link href={`/lesson`}>
                         Mulai Belajar
                         <ChevronRight className="h-4 w-4 ml-2" />
                       </Link>
                     </Button>
                   ) : progress === 100 ? (
                      <Button asChild className="w-full font-heading" variant="secondary">
-                      <Link href={`/courses/${course.slug}`}>
+                      <Link href={`/lesson`}>
                         <Sparkles className="h-4 w-4 mr-2" />
                         Ulangi Kursus
                       </Link>
                     </Button>
                   ) : (
                     <Button asChild className="w-full font-heading">
-                      <Link href={`/courses/${course.slug}`}>
+                      <Link href={`/lesson`}>
                         Lanjutkan
                         <ChevronRight className="h-4 w-4 ml-2" />
                       </Link>
