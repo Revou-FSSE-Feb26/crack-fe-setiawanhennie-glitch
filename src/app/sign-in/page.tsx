@@ -1,13 +1,47 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import Input from "@/components/ui/input";
 import Card from "@/components/ui/card";
 import DarkModeToggle from "@/components/ui/darkmodetoggle";
-import { Mail, Lock, GraduationCap } from "lucide-react";
+import { Mail, Lock, GraduationCap, AlertCircle } from "lucide-react";
+import { login } from "@/lib/auth-client";
 
 export default function LoginPage() {
+  const router = useRouter();
+  
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
+
+    try {
+      // Call the real backend API
+      await login({
+        email: formData.email,
+        password: formData.password,
+      });
+      
+      // If successful, redirect to the dashboard
+      router.push("/dashboard");
+    } catch (err: any) {
+      // Show error message from backend (e.g., "Email belum terverifikasi")
+      setError(err.message || "Gagal masuk. Periksa email dan password Anda.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-pixel-pattern relative">
       {/* Background overlay */}
@@ -34,13 +68,24 @@ export default function LoginPage() {
         </div>
 
         {/* Form */}
-        <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+        <form className="space-y-5" onSubmit={handleSubmit}>
+          
+          {/* API Error Alert */}
+          {error && (
+            <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 text-red-600 text-sm font-medium">
+              <AlertCircle className="w-4 h-4" />
+              {error}
+            </div>
+          )}
+
           <Input
             label="Email"
             type="email"
             placeholder="nama@sekolah.sch.id"
             required
             leftIcon={<Mail className="w-4 h-4" />}
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
           />
           
           <Input
@@ -49,6 +94,8 @@ export default function LoginPage() {
             placeholder="••••••••"
             required
             leftIcon={<Lock className="w-4 h-4" />}
+            value={formData.password}
+            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
           />
 
           <div className="flex items-center justify-between text-sm">
@@ -61,7 +108,7 @@ export default function LoginPage() {
             </Link>
           </div>
 
-          <Button type="submit" variant="primary" className="w-full" size="lg">
+          <Button type="submit" variant="primary" className="w-full" size="lg" isLoading={isLoading}>
             Masuk 
           </Button>
         </form>
@@ -69,7 +116,6 @@ export default function LoginPage() {
         {/* Footer */}
         <div className="mt-8 text-center text-sm text-muted-foreground">
           Belum punya akun?{" "}
-          {/* Changed href to /sign-up to match your main page */}
           <Link href="/sign-up" className="text-primary font-semibold hover:underline">
             Daftar disini
           </Link>

@@ -1,6 +1,9 @@
-import Link from "next/link"
-import { auth } from "@/lib/auth"
-import { Button } from "@/components/ui/button"
+"use client";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   GraduationCap,
   Flame,
@@ -12,7 +15,8 @@ import {
   ArrowRight,
   Award,
   BookOpenCheck,
-} from "lucide-react"
+} from "lucide-react";
+import { getCurrentUser, logout } from "@/lib/auth-client";
 
 function StatCard({
   icon: Icon,
@@ -20,16 +24,16 @@ function StatCard({
   value,
   tone,
 }: {
-  icon: React.ComponentType<{ className?: string }>
-  label: string
-  value: string | number
-  tone: "primary" | "accent" | "success"
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: string | number;
+  tone: "primary" | "accent" | "success";
 }) {
   const toneClasses = {
     primary: "bg-primary/10 text-primary",
     accent: "bg-orange-500/10 text-orange-600",
     success: "bg-yellow-500/10 text-yellow-600",
-  }[tone]
+  }[tone];
 
   return (
     <div className="flex flex-col items-center gap-1.5 rounded-2xl bg-card p-4 text-center ring-1 ring-border">
@@ -39,33 +43,52 @@ function StatCard({
       <p className="font-heading text-xl font-extrabold leading-none">{value}</p>
       <p className="text-xs text-muted-foreground">{label}</p>
     </div>
-  )
+  );
 }
 
-export default async function DashboardPage() {
-  const session = await auth.api.getSession()
-  const user = { name: "Budi Santoso", level: 5, xp: 1250, xpToNext: 2000 }
-  const streak = 7
-  const completedLessons = 24
-  const totalLessons = 40
-  const earnedBadges = 12
-  const totalBadges = 50
+export default function DashboardPage() {
+  const router = useRouter();
+  const [user, setUser] = useState({ name: "Budi Santoso", level: 5, xp: 1250, xpToNext: 2000 });
+
+  useEffect(() => {
+    // Get real user data from localStorage
+    const currentUser = getCurrentUser();
+    if (currentUser) {
+      setUser({
+        name: currentUser.name,
+        level: 5, // TODO: Fetch from backend
+        xp: 1250, // TODO: Fetch from backend
+        xpToNext: 2000, // TODO: Fetch from backend
+      });
+    }
+  }, []);
+
+  const handleLogout = () => {
+    logout(); // Clear token
+    router.push("/"); // Redirect to home
+  };
+
+  const streak = 7;
+  const completedLessons = 24;
+  const totalLessons = 40;
+  const earnedBadges = 12;
+  const totalBadges = 50;
 
   const activeCourses = [
     { name: "Matematika", emoji: "🔢", progress: 75, color: "bg-blue-500", nextLesson: "Aljabar Linear", done: 15, total: 20 },
-    { name: "Sains & IPA", emoji: "🔬", progress: 40, color: "bg-green-500", nextLesson: "Sistem Tata Surya", done: 6, total: 15 },
+    { name: "Sains & IPA", emoji: "", progress: 40, color: "bg-green-500", nextLesson: "Sistem Tata Surya", done: 6, total: 15 },
     { name: "Bahasa & Sastra", emoji: "📚", progress: 90, color: "bg-orange-500", nextLesson: "Puisi Kontemporer", done: 9, total: 10 },
-  ]
+  ];
 
-  const continueTarget = activeCourses.find(c => c.done < c.total) 
+  const continueTarget = activeCourses.find(c => c.done < c.total);
 
   const leaderboard = [
     { rank: 1, name: "Siti Aminah", xp: 2500, avatar: "SA" },
     { rank: 2, name: "Andi Pratama", xp: 2100, avatar: "AP" },
-    { rank: 3, name: "Budi Santoso", xp: 1250, avatar: "BS", isUser: true },
+    { rank: 3, name: user.name, xp: 1250, avatar: user.name.split(' ').map(n => n[0]).join(''), isUser: true },
     { rank: 4, name: "Dewi Lestari", xp: 980, avatar: "DL" },
     { rank: 5, name: "Rizky Maulana", xp: 850, avatar: "RM" },
-  ]
+  ];
 
   return (
     <main className="min-h-svh bg-background">
@@ -81,15 +104,13 @@ export default async function DashboardPage() {
           <div className="flex items-center gap-4">
             <div className="hidden sm:flex items-center gap-2 text-sm font-medium">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary font-bold">
-                BS
+                {user.name.split(' ').map(n => n[0]).join('')}
               </div>
               <span>{user.name}</span>
             </div>
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/">
-                <LogOut className="h-4 w-4 mr-2" />
-                Keluar
-              </Link>
+            <Button variant="ghost" size="sm" onClick={handleLogout}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Keluar
             </Button>
           </div>
         </div>
@@ -134,14 +155,14 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* NEW: Stat row using the reusable StatCard component */}
+        {/* Stat row */}
         <div className="grid grid-cols-3 gap-3">
           <StatCard icon={Flame} label="Streak Harian" value={`${streak} Hari`} tone="accent" />
           <StatCard icon={BookOpenCheck} label="Pelajaran Selesai" value={`${completedLessons}/${totalLessons}`} tone="primary" />
           <StatCard icon={Award} label="Lencana" value={`${earnedBadges}/${totalBadges}`} tone="success" />
         </div>
 
-        {/* NEW: "Continue Learning" Card (Massive UX Upgrade) */}
+        {/* Continue Learning Card */}
         {continueTarget && (
           <div className="rounded-3xl bg-card p-5 ring-1 ring-border shadow-sm">
             <div className="flex items-center justify-between gap-4">
@@ -157,7 +178,7 @@ export default async function DashboardPage() {
                 </p>
               </div>
               <Button asChild className="shrink-0 font-heading">
-                <Link href={`/lessons/matematika`}>
+                <Link href={`/lesson`}>
                   Mulai
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Link>
@@ -177,9 +198,10 @@ export default async function DashboardPage() {
                   <BookOpen className="h-5 w-5 text-primary" />
                   Kursusmu
                 </h2>
-                <Link href="/courses">
-                  <Button variant="ghost" size="sm" className="text-sm">Lihat Semua</Button>
-                </Link>
+                {/* ✅ Fixed: Button with asChild wrapping Link */}
+                <Button asChild variant="ghost" size="sm" className="text-sm">
+                  <Link href="/courses">Lihat Semua</Link>
+                </Button>
               </div>
               <div className="space-y-5">
                 {activeCourses.map((course) => (
@@ -190,7 +212,6 @@ export default async function DashboardPage() {
                     <div className="flex-1">
                       <div className="flex justify-between mb-1">
                         <span className="font-semibold font-heading">{course.name}</span>
-                        {/* UPDATED: Shows "15/20" instead of just "75%" */}
                         <span className="text-sm text-muted-foreground">{course.done}/{course.total}</span>
                       </div>
                       <div className="h-2 w-full rounded-full bg-secondary">
@@ -268,5 +289,5 @@ export default async function DashboardPage() {
         </div>
       </div>
     </main>
-  )
+  );
 }

@@ -262,10 +262,8 @@ export default function AdminDashboardPage() {
                   </Button>
                 </div>
               </div>
-
             </div>
           </div>
-
         </main>
       </div>
     </div>
