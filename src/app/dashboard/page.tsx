@@ -1,12 +1,9 @@
 import Link from "next/link"
-import { redirect } from "next/navigation"
-import { headers } from "next/headers"
 import { auth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import {
   GraduationCap,
   Flame,
-  Trophy,
   Zap,
   BookOpen,
   LogOut,
@@ -17,7 +14,6 @@ import {
   BookOpenCheck,
 } from "lucide-react"
 
-// --- NEW: Reusable Stat Card Component (borrowed from your code) ---
 function StatCard({
   icon: Icon,
   label,
@@ -31,8 +27,8 @@ function StatCard({
 }) {
   const toneClasses = {
     primary: "bg-primary/10 text-primary",
-    accent: "bg-orange-500/10 text-orange-600", // Adjusted for the fire streak
-    success: "bg-yellow-500/10 text-yellow-600", // Adjusted for badges
+    accent: "bg-orange-500/10 text-orange-600",
+    success: "bg-yellow-500/10 text-yellow-600",
   }[tone]
 
   return (
@@ -48,10 +44,6 @@ function StatCard({
 
 export default async function DashboardPage() {
   const session = await auth.api.getSession()
-  // For now, we comment this out so you can preview the dashboard.
-  // if (!session?.user) redirect("/") 
-
-  // Mock Data
   const user = { name: "Budi Santoso", level: 5, xp: 1250, xpToNext: 2000 }
   const streak = 7
   const completedLessons = 24
@@ -59,14 +51,12 @@ export default async function DashboardPage() {
   const earnedBadges = 12
   const totalBadges = 50
 
-  // UPDATED: Added 'nextLesson', 'done', and 'total' for the new UI features
   const activeCourses = [
     { name: "Matematika", emoji: "🔢", progress: 75, color: "bg-blue-500", nextLesson: "Aljabar Linear", done: 15, total: 20 },
     { name: "Sains & IPA", emoji: "🔬", progress: 40, color: "bg-green-500", nextLesson: "Sistem Tata Surya", done: 6, total: 15 },
     { name: "Bahasa & Sastra", emoji: "📚", progress: 90, color: "bg-orange-500", nextLesson: "Puisi Kontemporer", done: 9, total: 10 },
   ]
 
-  // Find the first course with an incomplete lesson for the "Continue" card
   const continueTarget = activeCourses.find(c => c.done < c.total) 
 
   const leaderboard = [
@@ -187,7 +177,9 @@ export default async function DashboardPage() {
                   <BookOpen className="h-5 w-5 text-primary" />
                   Kursusmu
                 </h2>
-                <Button variant="ghost" size="sm" className="text-sm">Lihat Semua</Button>
+                <Link href="/courses">
+                  <Button variant="ghost" size="sm" className="text-sm">Lihat Semua</Button>
+                </Link>
               </div>
               <div className="space-y-5">
                 {activeCourses.map((course) => (

@@ -148,7 +148,9 @@ export default function TeacherDashboardPage() {
                   <Clock className="h-5 w-5 text-primary" />
                   Aktivitas Murid Terbaru
                 </h2>
-                <Button variant="ghost" size="sm" className="text-sm">Lihat Semua</Button>
+                <Link href="@/courses">
+                  <Button variant="ghost" size="sm" className="text-sm">Lihat Semua</Button>
+                </Link>
               </div>
               
               <div className="space-y-4">
