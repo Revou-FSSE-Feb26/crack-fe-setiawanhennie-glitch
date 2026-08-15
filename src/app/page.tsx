@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/UI/button"
 import {
   Trophy,
   Flame,
@@ -7,11 +7,9 @@ import {
   Zap,
   GraduationCap,
   CheckCircle2,
-  Users,
   BookOpen,
   School,
   ArrowRight,
-  Sparkles,
   Lock,
   Calculator,
   FlaskConical,
@@ -21,11 +19,10 @@ import {
   PhoneCall,
   Star,
 } from "lucide-react"
-import DarkModeToggle from "@/components/ui/darkmodetoggle"
+import DarkModeToggle from "@/components/UI/darkmodetoggle"
+import Reveal from "@/components/UI/reveal"
 
 export default function HomePage() {
-  // The adventure path: subjects as unlockable stops on a level map,
-  // the way a player would actually experience progress in-app.
   const mapNodes = [
     { icon: Calculator, name: "Matematika", level: "Lvl 1", state: "current" },
     { icon: FlaskConical, name: "Sains", level: "Lvl 2", state: "unlocked" },
@@ -34,8 +31,6 @@ export default function HomePage() {
     { icon: Trophy, name: "Juara", level: "???", state: "locked", isGoal: true },
   ]
 
-  // Shown twice, like the reference: a plain trio right under the hero,
-  // then the same idea expanded into a full card grid further down.
   const heroTrio = [
     { icon: Zap, title: "Sistem XP Real-time", desc: "Poin bertambah begitu kuis selesai dikerjakan." },
     { icon: Award, title: "Lencana Prestasi", desc: "Setiap pencapaian tersimpan dan bisa dipamerkan." },
@@ -227,18 +222,20 @@ export default function HomePage() {
       </section>
 
       {/* Stats — a tinted counter band instead of a dashed-line strip */}
-      <section className="mt-20 bg-primary/5 py-14">
-        <div className="mx-auto max-w-6xl px-4">
-          <div className="grid grid-cols-2 gap-8 text-center md:grid-cols-4">
-            {stats.map((stat) => (
-              <div key={stat.label}>
-                <p className="font-heading text-4xl font-extrabold text-primary">{stat.value}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{stat.label}</p>
-              </div>
-            ))}
+      <Reveal>
+        <section className="mt-20 bg-primary/5 py-14">
+          <div className="mx-auto max-w-6xl px-4">
+            <div className="grid grid-cols-2 gap-8 text-center md:grid-cols-4">
+              {stats.map((stat) => (
+                <div key={stat.label}>
+                  <p className="font-heading text-4xl font-extrabold text-primary">{stat.value}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{stat.label}</p>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </Reveal>
 
       {/* How It Works */}
       <section className="py-20">
@@ -271,14 +268,16 @@ export default function HomePage() {
             <p className="mt-2 text-muted-foreground">Sistem game yang membuatmu terus termotivasi dan semangat belajar.</p>
           </div>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {features.map((f) => (
-              <div key={f.title} className="rounded-xl bg-card p-6 shadow-sm ring-1 ring-border transition-all hover:-translate-y-1 hover:shadow-md">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <f.icon className="h-6 w-6" />
+            {features.map((f, index) => (
+              <Reveal key={f.title} delay={index * 120}>
+                <div className="rounded-xl bg-card p-6 shadow-sm ring-1 ring-border transition-all hover:-translate-y-1 hover:shadow-md">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <f.icon className="h-6 w-6" />
+                  </div>
+                  <h3 className="mt-4 font-heading text-lg font-bold">{f.title}</h3>
+                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{f.desc}</p>
                 </div>
-                <h3 className="mt-4 font-heading text-lg font-bold">{f.title}</h3>
-                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{f.desc}</p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
