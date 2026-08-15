@@ -80,7 +80,7 @@ export default function HomePage() {
   return (
     <main className="min-h-svh bg-background">
       {/* Nav */}
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sticky top-0 z-50 bg-background/90 backdrop-blur-sm">
+      <header className="mx-auto flex items-center justify-between px-4 py-5 sticky top-0 z-50 bg-background/90 backdrop-blur-sm">
         <Link href="/" className="flex items-center gap-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <GraduationCap className="h-5 w-5" />
@@ -108,11 +108,6 @@ export default function HomePage() {
         <div className="relative mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2 lg:gap-8">
           {/* Left Column - Text Content */}
           <div className="text-left">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-secondary px-4 py-1.5 text-sm font-semibold text-secondary-foreground">
-              <Sparkles className="h-4 w-4" />
-              Platform Belajar #1 untuk Pelajar Indonesia
-            </div>
-
             <h1 className="text-balance font-heading text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
               Jadikan belajar sebuah{" "}
               <span className="text-primary">petualangan seru!</span>
@@ -141,41 +136,16 @@ export default function HomePage() {
           </div>
 
           {/* Right Column - Hero Image */}
-          <div className="relative mx-auto w-full max-w-lg lg:max-w-none">
-            {/* Large circular background */}
-            <div className="absolute inset-0 -top-8 -right-8 rounded-full bg-primary/20 blur-3xl" aria-hidden />
-            
+          <div className="relative mx-auto w-full max-w-lg">         
             {/* Image container with circular mask */}
-            <div className="relative overflow-hidden rounded-full bg-gradient-to-br from-primary/20 to-accent/20 p-2">
-              <div className="aspect-square overflow-hidden rounded-full bg-background">
-                {/* Replace this with your actual student image */}
                 <img
-                  src="/hero-student.jpg"
+                  src="/output-onlinegiftools.gif"
                   alt="Siswa bahagia belajar dengan NusaSkillz"
                   className="h-full w-full object-cover"
                 />
-                {/* Fallback if no image: */}
-                {/* <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10">
-                  <GraduationCap className="h-32 w-32 text-primary/30" />
-                </div> */}
-              </div>
-            </div>
 
-            {/* Floating badge - XP indicator */}
-            <div className="absolute -bottom-4 -left-4 rounded-2xl bg-card px-4 py-3 shadow-lg ring-1 ring-border">
-              <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <Zap className="h-4 w-4" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">XP Dikumpulkan</p>
-                  <p className="font-heading text-sm font-bold text-primary">10,000+ XP</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Floating badge - Rating */}
-            <div className="absolute -top-4 -right-4 rounded-2xl bg-card px-4 py-3 shadow-lg ring-1 ring-border">
+            {/* Floating badge - Rating (top right) */}
+            <div className="absolute -top-4 -right-4 rounded-2xl bg-card px-4 py-3 shadow-lg ring-1 ring-border animate-float-badge">
               <div className="flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-500/10 text-yellow-600">
                   <Star className="h-4 w-4 fill-yellow-500" />
@@ -183,6 +153,19 @@ export default function HomePage() {
                 <div>
                   <p className="text-xs text-muted-foreground">Rating</p>
                   <p className="font-heading text-sm font-bold">4.9/5.0</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Floating badge - XP (bottom left) */}
+            <div className="absolute -bottom-4 -left-4 rounded-2xl bg-card px-4 py-3 shadow-lg ring-1 ring-border animate-float-badge-delayed">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <Zap className="h-4 w-4" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">XP Dikumpulkan</p>
+                  <p className="font-heading text-sm font-bold text-primary">10,000+ XP</p>
                 </div>
               </div>
             </div>

@@ -53,6 +53,7 @@
 :root {
   --radius: 1rem;
   --font-geist-mono: ui-monospace, monospace;
+  font-size: 14px;
   --background: oklch(0.985 0.008 280);
   --foreground: oklch(0.22 0.03 280);
   --card: oklch(1 0 0);
@@ -203,11 +204,17 @@
   }
 }
 
-@keyframes float {
+/* Gentle floating for hero badges */
+@keyframes float-badge {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  50% { transform: translateY(-12px); }
 }
 
-.animate-float-slow {
-  animation: float 3s ease-in-out infinite;
+.animate-float-badge {
+  animation: float-badge 4s ease-in-out infinite;
+}
+
+/* Same animation, but delayed by 2s so it moves out of phase */
+.animate-float-badge-delayed {
+  animation: float-badge 4s ease-in-out 2s infinite;
 }
