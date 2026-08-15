@@ -10,17 +10,17 @@ import {
   BookOpen,
   School,
   ArrowRight,
-  Lock,
   Calculator,
   FlaskConical,
   Languages,
   Landmark,
-  Quote,
   PhoneCall,
   Star,
+  Mail,
 } from "lucide-react"
 import DarkModeToggle from "@/components/UI/darkmodetoggle"
 import Reveal from "@/components/UI/reveal"
+import InquiryForm from "@/components/inquiry-form"
 
 export default function HomePage() {
   const mapNodes = [
@@ -48,28 +48,6 @@ export default function HomePage() {
     { step: "01", title: "Daftar & verifikasi", desc: "Buat akun gratis dan verifikasi emailmu dalam 30 detik.", icon: CheckCircle2 },
     { step: "02", title: "Pilih kursus", desc: "Jelajahi mata pelajaran dan mulai dari level yang sesuai.", icon: BookOpen },
     { step: "03", title: "Belajar & raih XP", desc: "Selesaikan pelajaran, kumpulkan XP, dan naik level!", icon: Zap },
-  ]
-
-  const stats = [
-    { value: "10,000+", label: "Pelajar aktif" },
-    { value: "500+", label: "Sekolah mitra" },
-    { value: "1,200+", label: "Pelajaran" },
-    { value: "4.9/5", label: "Rating pengguna" },
-  ]
-
-  const testimonials = [
-    {
-      name: "Budi Santoso",
-      role: "Siswa Kelas 12 · SMA 1 Jakarta",
-      text: "NusaSkillz bikin belajar Matematika jadi seru! Aku jadi rajin belajar karena pengen naik level dan dapetin lencana.",
-      avatar: "BS",
-    },
-    {
-      name: "Bu Sari",
-      role: "Guru Matematika · SMP 5 Bandung",
-      text: "Sistem gamifikasinya bikin murid-muridku lebih termotivasi. Mereka bahkan saling berlomba di papan peringkat!",
-      avatar: "BS",
-    },
   ]
 
   return (
@@ -179,63 +157,7 @@ export default function HomePage() {
             </div>
           ))}
         </div>
-
-        {/* Level Map */}
-        <div className="relative mx-auto mt-20 max-w-3xl rounded-xl bg-card p-8 shadow-sm ring-1 ring-border">
-          <p className="mb-8 font-heading text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
-            Peta petualanganmu
-          </p>
-          <div className="relative flex items-end justify-between px-1 sm:px-4">
-            <div className="absolute left-0 right-0 top-1/2 h-0 border-t-2 border-dashed border-border" aria-hidden />
-            {mapNodes.map((node, i) => {
-              const isLocked = node.state === "locked"
-              const isCurrent = node.state === "current"
-              const lift = i % 2 === 1 ? "-translate-y-7 sm:-translate-y-10" : "translate-y-0"
-              return (
-                <div key={node.name} className={`relative z-10 flex flex-col items-center gap-2 ${lift}`}>
-                  <div
-                    className={[
-                      "flex items-center justify-center rounded-xl border-2 transition-transform",
-                      node.isGoal ? "h-16 w-16 sm:h-20 sm:w-20" : "h-12 w-12 sm:h-14 sm:w-14",
-                      isLocked
-                        ? "border-border bg-background text-muted-foreground/60 grayscale"
-                        : isCurrent
-                          ? "border-primary bg-primary text-primary-foreground shadow-lg motion-safe:animate-float-slow"
-                          : "border-accent bg-accent/15 text-accent-foreground",
-                    ].join(" ")}
-                  >
-                    {isLocked ? (
-                      <Lock className="h-4 w-4 sm:h-5 sm:w-5" />
-                    ) : (
-                      <node.icon className={node.isGoal ? "h-7 w-7 sm:h-9 sm:w-9" : "h-5 w-5 sm:h-6 sm:w-6"} />
-                    )}
-                  </div>
-                  <div className="text-center">
-                    <p className="font-heading text-[11px] font-bold sm:text-xs">{node.name}</p>
-                    <p className="text-[10px] text-muted-foreground sm:text-[11px]">{node.level}</p>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
       </section>
-
-      {/* Stats — a tinted counter band instead of a dashed-line strip */}
-      <Reveal>
-        <section className="mt-20 bg-primary/5 py-14">
-          <div className="mx-auto max-w-6xl px-4">
-            <div className="grid grid-cols-2 gap-8 text-center md:grid-cols-4">
-              {stats.map((stat) => (
-                <div key={stat.label}>
-                  <p className="font-heading text-4xl font-extrabold text-primary">{stat.value}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">{stat.label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      </Reveal>
 
       {/* How It Works */}
       <section className="py-20">
@@ -284,111 +206,101 @@ export default function HomePage() {
       </section>
 
       {/* For Teachers */}
-      <section className="py-20">
-        <div className="mx-auto max-w-6xl px-4">
-          <div className="rounded-xl bg-gradient-to-br from-slate-900 to-slate-800 p-8 text-white md:p-12">
-            <div className="grid items-center gap-8 md:grid-cols-2">
-              <div>
-                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm font-semibold">
-                  <School className="h-4 w-4" />
-                  Untuk Guru & Sekolah
-                </div>
-                <h2 className="mb-4 font-heading text-3xl font-extrabold md:text-4xl">Pantau progress murid dengan mudah</h2>
-                <p className="mb-6 leading-relaxed text-white/80">
-                  Dashboard khusus guru untuk melihat statistik kelas, menilai tugas, dan membuat kuis interaktif.
-                  Semua dalam satu platform.
-                </p>
-                <ul className="mb-6 space-y-2">
-                  {["Laporan progress real-time", "Buat kuis & materi sendiri", "Sistem penilaian otomatis"].map((item) => (
-                    <li key={item} className="flex items-center gap-2 text-sm">
-                      <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-                <Button asChild className="rounded-full bg-white font-heading text-slate-900 hover:bg-white/90">
-                  <Link href="/teacher/dashboard">
-                    Lihat dashboard guru
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              </div>
-
-              <div className="hidden justify-center md:flex">
-                <div className="w-72 rounded-xl border border-white/20 bg-white/10 p-4 backdrop-blur">
-                  <p className="mb-3 font-heading text-xs font-bold uppercase tracking-wide text-white/60">Kelas 9B · Papan Peringkat</p>
-                  <div className="space-y-2.5">
-                    {[
-                      { name: "Ayu R.", xp: "1,240 XP", w: "w-[92%]" },
-                      { name: "Dimas P.", xp: "1,105 XP", w: "w-[80%]" },
-                      { name: "Nadia S.", xp: "980 XP", w: "w-[68%]" },
-                    ].map((row, i) => (
-                      <div key={row.name} className="flex items-center gap-2 text-xs">
-                        <span className="w-4 shrink-0 font-heading font-bold text-accent">{i + 1}</span>
-                        <span className="w-16 shrink-0 truncate text-white/90">{row.name}</span>
-                        <div className="h-1.5 flex-1 rounded-full bg-white/10">
-                          <div className={`h-1.5 ${row.w} rounded-full bg-accent`} />
-                        </div>
-                        <span className="w-14 shrink-0 text-right text-white/60">{row.xp}</span>
-                      </div>
+      <Reveal direction="left">
+        <section className="py-20">
+          <div className="mx-auto max-w-6xl px-4">
+            <div className="rounded-xl bg-gradient-to-br from-slate-900 to-slate-800 p-8 text-white md:p-12">
+              <div className="grid items-center gap-8 md:grid-cols-2">
+                <div>
+                  <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm font-semibold">
+                    <School className="h-4 w-4" />
+                    Untuk Guru & Sekolah
+                  </div>
+                  <h2 className="mb-4 font-heading text-3xl font-extrabold md:text-4xl">Pantau progress murid dengan mudah</h2>
+                  <p className="mb-6 leading-relaxed text-white/80">
+                    Dashboard khusus guru untuk melihat statistik kelas, menilai tugas, dan membuat kuis interaktif.
+                    Semua dalam satu platform.
+                  </p>
+                  <ul className="mb-6 space-y-2">
+                    {["Laporan progress real-time", "Buat kuis & materi sendiri", "Sistem penilaian otomatis"].map((item) => (
+                      <li key={item} className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                        {item}
+                      </li>
                     ))}
+                  </ul>
+                  <Button asChild className="rounded-full bg-white font-heading text-slate-900 hover:bg-white/90">
+                    <Link href="/teacher/dashboard">
+                      Lihat dashboard guru
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
+
+                <div className="hidden justify-center md:flex">
+                  <div className="w-72 rounded-xl border border-white/20 bg-white/10 p-4 backdrop-blur">
+                    <p className="mb-3 font-heading text-xs font-bold uppercase tracking-wide text-white/60">Kelas 9B · Papan Peringkat</p>
+                    <div className="space-y-2.5">
+                      {[
+                        { name: "Ayu R.", xp: "1,240 XP", w: "w-[92%]" },
+                        { name: "Dimas P.", xp: "1,105 XP", w: "w-[80%]" },
+                        { name: "Nadia S.", xp: "980 XP", w: "w-[68%]" },
+                      ].map((row, i) => (
+                        <div key={row.name} className="flex items-center gap-2 text-xs">
+                          <span className="w-4 shrink-0 font-heading font-bold text-accent">{i + 1}</span>
+                          <span className="w-16 shrink-0 truncate text-white/90">{row.name}</span>
+                          <div className="h-1.5 flex-1 rounded-full bg-white/10">
+                            <div className={`h-1.5 ${row.w} rounded-full bg-accent`} />
+                          </div>
+                          <span className="w-14 shrink-0 text-right text-white/60">{row.xp}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </Reveal>
 
-      {/* Testimonials — big quote mark + avatar, matching the reference's
-          testimonial card instead of a star-rating review card. */}
-      <section className="py-20">
-        <div className="mx-auto max-w-6xl px-4">
-          <div className="mb-10 text-center">
-            <h2 className="font-heading text-3xl font-extrabold md:text-4xl">Kata mereka tentang NusaSkillz</h2>
-            <p className="mt-2 text-muted-foreground">Bergabung dengan ribuan pelajar dan guru yang sudah merasakan manfaatnya.</p>
-          </div>
-          <div className="grid gap-6 md:grid-cols-2">
-            {testimonials.map((t) => (
-              <div key={t.name} className="rounded-xl bg-card p-8 shadow-sm ring-1 ring-border">
-                <Quote className="h-8 w-8 text-primary/25" />
-                <p className="mt-3 leading-relaxed text-foreground">&ldquo;{t.text}&rdquo;</p>
-                <div className="mt-6 flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                    {t.avatar}
-                  </div>
-                  <div>
-                    <p className="font-heading text-sm font-bold">{t.name}</p>
-                    <p className="text-xs text-muted-foreground">{t.role}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA — a bold colored banner instead of a plain centered block,
-          matching the reference's closing "Join 5000+ Startups" panel. */}
+      {/* Contact / Inquiry Form */}
       <section className="mx-auto max-w-6xl px-4 pb-20">
-        <div className="relative overflow-hidden rounded-xl bg-primary px-6 py-16 text-center text-primary-foreground">
+        <div className="relative overflow-hidden rounded-xl bg-primary px-6 py-16 text-primary-foreground md:px-12">
           <div className="pointer-events-none absolute -bottom-16 -right-10 h-56 w-56 rounded-full bg-white/10 blur-2xl" aria-hidden />
           <div className="pointer-events-none absolute -top-16 -left-10 h-56 w-56 rounded-full bg-white/10 blur-2xl" aria-hidden />
-          <div className="relative">
-            <div className="flex justify-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-white/15">
-                <GraduationCap className="h-8 w-8" />
+
+          <div className="relative grid items-center gap-10 md:grid-cols-2">
+            {/* Left: Heading + contact info */}
+            <div className="text-left">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm font-semibold">
+                <PhoneCall className="h-4 w-4" />
+                Hubungi Kami
               </div>
+              <h2 className="text-balance font-heading text-3xl font-extrabold md:text-4xl">
+                Ada pertanyaan? Kami siap membantu!
+              </h2>
+              <p className="mt-3 leading-relaxed text-primary-foreground/80">
+                Isi formulir di samping dan tim kami akan membalas dalam 1×24 jam kerja.
+              </p>
+              <ul className="mt-6 space-y-3 text-sm">
+                <li className="flex items-center gap-3">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10">
+                    <Mail className="h-4 w-4" />
+                  </span>
+                  support@nusaskillz.id
+                </li>
+                <li className="flex items-center gap-3">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10">
+                    <PhoneCall className="h-4 w-4" />
+                  </span>
+                  (021) 5000-1234
+                </li>
+              </ul>
             </div>
-            <h2 className="mt-6 text-balance font-heading text-3xl font-extrabold md:text-4xl">
-              Siap menjadikan belajar sebuah petualangan?
-            </h2>
-            <p className="mx-auto mt-3 max-w-md text-primary-foreground/80">
-              Bergabung dengan NusaSkillz hari ini dan mulai kumpulkan XP dalam hitungan menit.
-            </p>
-            <Button asChild size="lg" variant="secondary" className="mt-8 rounded-full font-heading text-base">
-              <Link href="/sign-up">Buat akun gratis</Link>
-            </Button>
+
+            {/* Right: The form */}
+            <InquiryForm />
           </div>
         </div>
       </section>
@@ -433,7 +345,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="mt-8 border-t border-border pt-8 text-center text-sm text-muted-foreground">
-            <p>© 2026 NusaSkillz. Belajar ala game untuk pelajar Indonesia. 🇮🇩</p>
+            <p>© 2026 NusaSkillz. All rights reserved.</p>
           </div>
         </div>
       </footer>

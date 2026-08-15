@@ -24,8 +24,15 @@ export default function Reveal({
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        // 👇 Changed: toggle visibility every time the element enters/leaves the viewport
-        setIsVisible(entry.isIntersecting);
+        if (entry.isIntersecting) {
+          // Element entered the viewport (scrolling down) → show it
+          setIsVisible(true);
+        } else if (entry.boundingClientRect.top > window.innerHeight) {
+          // Element is BELOW the viewport (you scrolled up past it) → hide it
+          setIsVisible(false);
+        }
+        // If element is ABOVE the viewport (you scrolled down past it),
+        // we do nothing → it stays visible permanently ✅
       },
       { threshold: 0.15 }
     );
