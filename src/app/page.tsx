@@ -31,12 +31,6 @@ export default function HomePage() {
     { icon: Trophy, name: "Juara", level: "???", state: "locked", isGoal: true },
   ]
 
-  const heroTrio = [
-    { icon: Zap, title: "Sistem XP Real-time", desc: "Poin bertambah begitu kuis selesai dikerjakan." },
-    { icon: Award, title: "Lencana Prestasi", desc: "Setiap pencapaian tersimpan dan bisa dipamerkan." },
-    { icon: Trophy, title: "Papan Peringkat Kelas", desc: "Lihat posisimu di antara teman sekelas." },
-  ]
-
   const features = [
     { icon: Zap, title: "Dapatkan XP & naik level", desc: "Setiap pelajaran dan kuis memberimu poin pengalaman. Pantau perjalananmu dari Pemula hingga Legenda." },
     { icon: Award, title: "Buka lencana prestasi", desc: "Kumpulkan lencana untuk pencapaian, nilai sempurna, dan streak belajar harian." },
@@ -143,19 +137,6 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Plain icon trio directly under the hero */}
-        <div className="relative mx-auto mt-20 grid max-w-4xl gap-8 sm:grid-cols-3">
-          {heroTrio.map((item) => (
-            <div key={item.title} className="flex flex-col items-center text-center sm:items-start sm:text-left">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <item.icon className="h-6 w-6" />
-              </div>
-              <h3 className="mt-3 font-heading text-base font-bold">{item.title}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">{item.desc}</p>
-            </div>
-          ))}
         </div>
       </section>
 
@@ -265,45 +246,47 @@ export default function HomePage() {
       </Reveal>
 
       {/* Contact / Inquiry Form */}
-      <section className="mx-auto max-w-6xl px-4 pb-20">
-        <div className="relative overflow-hidden rounded-xl bg-primary px-6 py-16 text-primary-foreground md:px-12">
-          <div className="pointer-events-none absolute -bottom-16 -right-10 h-56 w-56 rounded-full bg-white/10 blur-2xl" aria-hidden />
-          <div className="pointer-events-none absolute -top-16 -left-10 h-56 w-56 rounded-full bg-white/10 blur-2xl" aria-hidden />
+      <Reveal direction="left">
+        <section className="mx-auto max-w-6xl px-4 pb-20">
+          <div className="relative overflow-hidden rounded-xl bg-primary px-6 py-16 text-primary-foreground md:px-12">
+            <div className="pointer-events-none absolute -bottom-16 -right-10 h-56 w-56 rounded-full bg-white/10 blur-2xl" aria-hidden />
+            <div className="pointer-events-none absolute -top-16 -left-10 h-56 w-56 rounded-full bg-white/10 blur-2xl" aria-hidden />
 
-          <div className="relative grid items-center gap-10 md:grid-cols-2">
-            {/* Left: Heading + contact info */}
-            <div className="text-left">
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm font-semibold">
-                <PhoneCall className="h-4 w-4" />
-                Hubungi Kami
+            <div className="relative grid items-center gap-10 md:grid-cols-2">
+              {/* Left: Heading + contact info */}
+              <div className="text-left">
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm font-semibold">
+                  <PhoneCall className="h-4 w-4" />
+                  Hubungi Kami
+                </div>
+                <h2 className="text-balance font-heading text-3xl font-extrabold md:text-4xl">
+                  Ada pertanyaan? Kami siap membantu!
+                </h2>
+                <p className="mt-3 leading-relaxed text-primary-foreground/80">
+                  Isi formulir di samping dan tim kami akan membalas dalam 1×24 jam kerja.
+                </p>
+                <ul className="mt-6 space-y-3 text-sm">
+                  <li className="flex items-center gap-3">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10">
+                      <Mail className="h-4 w-4" />
+                    </span>
+                    support@nusaskillz.id
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10">
+                      <PhoneCall className="h-4 w-4" />
+                    </span>
+                    (021) 5000-1234
+                  </li>
+                </ul>
               </div>
-              <h2 className="text-balance font-heading text-3xl font-extrabold md:text-4xl">
-                Ada pertanyaan? Kami siap membantu!
-              </h2>
-              <p className="mt-3 leading-relaxed text-primary-foreground/80">
-                Isi formulir di samping dan tim kami akan membalas dalam 1×24 jam kerja.
-              </p>
-              <ul className="mt-6 space-y-3 text-sm">
-                <li className="flex items-center gap-3">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10">
-                    <Mail className="h-4 w-4" />
-                  </span>
-                  support@nusaskillz.id
-                </li>
-                <li className="flex items-center gap-3">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10">
-                    <PhoneCall className="h-4 w-4" />
-                  </span>
-                  (021) 5000-1234
-                </li>
-              </ul>
-            </div>
 
-            {/* Right: The form */}
-            <InquiryForm />
+              {/* Right: The form */}
+              <InquiryForm />
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </Reveal>
 
       {/* Footer */}
       <footer className="border-t border-border py-12">

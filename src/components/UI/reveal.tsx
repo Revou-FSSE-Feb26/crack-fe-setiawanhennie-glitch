@@ -22,23 +22,35 @@ export default function Reveal({
     const el = ref.current;
     if (!el) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          // Element entered the viewport (scrolling down) → show it
-          setIsVisible(true);
-        } else if (entry.boundingClientRect.top > window.innerHeight) {
-          // Element is BELOW the viewport (you scrolled up past it) → hide it
-          setIsVisible(false);
-        }
-        // If element is ABOVE the viewport (you scrolled down past it),
-        // we do nothing → it stays visible permanently ✅
-      },
-      { threshold: 0.15 }
-    );
+    let ticking = false;
 
-    observer.observe(el);
-    return () => observer.disconnect();
+    const check = () => {
+      const rect = el.getBoundingClientRect();
+      const vh = window.innerHeight;
+
+      if (rect.top < vh * 0.9 && rect.bottom > 0) {
+        setIsVisible(true);
+      } else if (rect.top >= vh) {
+        setIsVisible(false);
+      }
+      ticking = false;
+    };
+
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(check);
+      }
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    check(); // run once on mount
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, []);
 
   const hiddenTransform =
