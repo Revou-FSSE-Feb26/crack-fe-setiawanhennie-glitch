@@ -2,6 +2,10 @@
 
 @custom-variant dark (&:is(.dark *));
 
+html {
+  scroll-behavior: smooth;
+}
+
 @theme inline {
   /* Fonts */
   --font-heading: var(--font-baloo), var(--font-nunito), sans-serif;

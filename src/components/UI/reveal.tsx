@@ -28,7 +28,7 @@ export default function Reveal({
       const rect = el.getBoundingClientRect();
       const vh = window.innerHeight;
 
-      if (rect.top < vh * 0.9 && rect.bottom > 0) {
+      if (rect.top < vh * 0.85 && rect.bottom > 0) {
         setIsVisible(true);
       } else if (rect.top >= vh) {
         setIsVisible(false);
@@ -45,7 +45,7 @@ export default function Reveal({
 
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
-    check(); // run once on mount
+    check();
 
     return () => {
       window.removeEventListener("scroll", onScroll);

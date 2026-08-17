@@ -10,10 +10,6 @@ import {
   BookOpen,
   School,
   ArrowRight,
-  Calculator,
-  FlaskConical,
-  Languages,
-  Landmark,
   PhoneCall,
   Star,
   Mail,
@@ -22,15 +18,12 @@ import DarkModeToggle from "@/components/UI/darkmodetoggle"
 import Reveal from "@/components/UI/reveal"
 import InquiryForm from "@/components/inquiry-form"
 
-export default function HomePage() {
-  const mapNodes = [
-    { icon: Calculator, name: "Matematika", level: "Lvl 1", state: "current" },
-    { icon: FlaskConical, name: "Sains", level: "Lvl 2", state: "unlocked" },
-    { icon: Languages, name: "Bahasa", level: "Lvl 3", state: "locked" },
-    { icon: Landmark, name: "Sejarah", level: "Lvl 4", state: "locked" },
-    { icon: Trophy, name: "Juara", level: "???", state: "locked", isGoal: true },
-  ]
+export const metadata = {
+  title: "NusaSkillz — Belajar ala Game untuk Pelajar Indonesia",
+  description: "Selesaikan pelajaran, kerjakan kuis, kumpulkan XP, dan buka lencana dalam berbagai mata pelajaran.",
+}
 
+export default function HomePage() {
   const features = [
     { icon: Zap, title: "Dapatkan XP & naik level", desc: "Setiap pelajaran dan kuis memberimu poin pengalaman. Pantau perjalananmu dari Pemula hingga Legenda." },
     { icon: Award, title: "Buka lencana prestasi", desc: "Kumpulkan lencana untuk pencapaian, nilai sempurna, dan streak belajar harian." },
@@ -54,6 +47,14 @@ export default function HomePage() {
           </div>
           <span className="font-heading text-xl font-extrabold">NusaSkillz</span>
         </Link>
+
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+            <nav className="hidden items-center gap-6 text-sm font-bold md:flex">
+              <a href="#cara-kerja" className="hover:text-primary">Cara Kerja</a>
+              <a href="#fitur" className="hover:text-primary">Fitur</a>
+              <a href="#kontak" className="hover:text-primary">Kontak</a>
+            </nav>
+        </div>
 
         <div className="flex items-center gap-2">
           <DarkModeToggle />
@@ -82,7 +83,7 @@ export default function HomePage() {
             
             <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground">
               Selesaikan pelajaran, kerjakan kuis, kumpulkan XP, dan buka level
-              baru di Matematika, IPA, Bahasa, dan Sejarah.
+              baru dalam berbagai mata pelajaran.
             </p>
 
             {/* CTA Buttons */}
@@ -103,48 +104,50 @@ export default function HomePage() {
           </div>
 
           {/* Right Column - Hero Image */}
-          <div className="relative mx-auto w-full max-w-lg">         
-            {/* Image container with circular mask */}
-                <img
-                  src="/output-onlinegiftools.gif"
-                  alt="Siswa bahagia belajar dengan NusaSkillz"
-                  className="h-full w-full object-cover"
-                />
+          <Reveal direction="left">
+            <div className="relative mx-auto w-full max-w-lg">         
+              {/* Image container with circular mask */}
+                  <img
+                    src="/output-onlinegiftools.gif"
+                    alt="Siswa bahagia belajar dengan NusaSkillz"
+                    className="h-full w-full object-cover"
+                  />
 
-            {/* Floating badge - Rating (top right) */}
-            <div className="absolute -top-4 -right-4 rounded-2xl bg-card px-4 py-3 shadow-lg ring-1 ring-border animate-float-badge">
-              <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-500/10 text-yellow-600">
-                  <Star className="h-4 w-4 fill-yellow-500" />
+              {/* Floating badge - Rating (top right) */}
+              <div className="absolute -top-4 -right-4 rounded-2xl bg-card px-4 py-3 shadow-lg ring-1 ring-border animate-float-badge">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-500/10 text-yellow-600">
+                    <Star className="h-4 w-4 fill-yellow-500" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Rating</p>
+                    <p className="font-heading text-sm font-bold">4.9/5.0</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Rating</p>
-                  <p className="font-heading text-sm font-bold">4.9/5.0</p>
+              </div>
+
+              {/* Floating badge - XP (bottom left) */}
+              <div className="absolute -bottom-4 -left-4 rounded-2xl bg-card px-4 py-3 shadow-lg ring-1 ring-border animate-float-badge-delayed">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <Zap className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">XP Dikumpulkan</p>
+                    <p className="font-heading text-sm font-bold text-primary">10,000+ XP</p>
+                  </div>
                 </div>
               </div>
             </div>
-
-            {/* Floating badge - XP (bottom left) */}
-            <div className="absolute -bottom-4 -left-4 rounded-2xl bg-card px-4 py-3 shadow-lg ring-1 ring-border animate-float-badge-delayed">
-              <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <Zap className="h-4 w-4" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">XP Dikumpulkan</p>
-                  <p className="font-heading text-sm font-bold text-primary">10,000+ XP</p>
-                </div>
-              </div>
-            </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
       {/* How It Works */}
-      <section className="py-20">
+      <section className="scroll-mt-24 flex min-h-[calc(100svh-6rem)] items-center py-16" id="cara-kerja">
         <div className="mx-auto max-w-6xl px-4">
           <div className="mb-12 text-center">
-            <h2 className="font-heading text-3xl font-extrabold md:text-4xl">Mulai dalam 3 langkah mudah</h2>
+            <h2 className="font-heading text-3xl font-extrabold md:text-4xl">Mulai dalam 3 langkah mudah!</h2>
             <p className="mt-2 text-muted-foreground">Tidak perlu setup rumit. Langsung belajar dalam hitungan menit.</p>
           </div>
           <div className="relative grid gap-6 md:grid-cols-3">
@@ -164,11 +167,11 @@ export default function HomePage() {
       </section>
 
       {/* Features — the expanded version of the hero trio */}
-      <section className="bg-secondary/40 py-20">
+      <section className="bg-secondary/40 py-20 scroll-mt-24" id="fitur">
         <div className="mx-auto max-w-6xl px-4">
           <div className="mb-10 text-center">
-            <h2 className="font-heading text-3xl font-extrabold md:text-4xl">Kenapa pelajar suka NusaSkillz?</h2>
-            <p className="mt-2 text-muted-foreground">Sistem game yang membuatmu terus termotivasi dan semangat belajar.</p>
+            <h2 className="font-heading text-3xl font-extrabold md:text-4xl">Kenapa NusaSkillz?</h2>
+            <p className="mt-2 text-muted-foreground">Sistem game yang membuat pelajar terus termotivasi dan semangat belajar</p>
           </div>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {features.map((f, index) => (
@@ -245,9 +248,9 @@ export default function HomePage() {
         </section>
       </Reveal>
 
-      {/* Contact / Inquiry Form */}
+      {/* Contact Section*/}
       <Reveal direction="left">
-        <section className="mx-auto max-w-6xl px-4 pb-20">
+        <section className="mx-auto max-w-6xl px-4 pb-20 scroll-mt-24"  id="kontak">
           <div className="relative overflow-hidden rounded-xl bg-primary px-6 py-16 text-primary-foreground md:px-12">
             <div className="pointer-events-none absolute -bottom-16 -right-10 h-56 w-56 rounded-full bg-white/10 blur-2xl" aria-hidden />
             <div className="pointer-events-none absolute -top-16 -left-10 h-56 w-56 rounded-full bg-white/10 blur-2xl" aria-hidden />
@@ -304,12 +307,57 @@ export default function HomePage() {
               </p>
             </div>
             <div>
-              <h4 className="mb-3 font-heading text-sm font-bold">Produk</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="/courses" className="hover:text-foreground">Kursus</Link></li>
-                <li><Link href="#" className="hover:text-foreground">Untuk Guru</Link></li>
-                <li><Link href="#" className="hover:text-foreground">Untuk Sekolah</Link></li>
-              </ul>
+              <h4 className="mb-3 font-heading text-sm font-bold">Ikuti Kami</h4>
+              <div className="flex items-center gap-3">
+                
+                {/* Instagram */}
+                <a
+                  href="https://instagram.com/nusaskillz"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-muted-foreground transition-all hover:-translate-y-1 hover:bg-primary hover:text-primary-foreground"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                </a>
+
+                {/* YouTube */}
+                <a
+                  href="https://youtube.com/@nusaskillz"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="YouTube"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-muted-foreground transition-all hover:-translate-y-1 hover:bg-red-500 hover:text-white"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><path d="m10 15 5-3-5-3z"/></svg>
+                </a>
+
+                {/* Facebook */}
+                <a
+                  href="https://facebook.com/nusaskillz"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-muted-foreground transition-all hover:-translate-y-1 hover:bg-blue-600 hover:text-white"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                </a>
+
+                {/* Twitter / X */}
+                <a
+                  href="https://twitter.com/nusaskillz"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Twitter"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-muted-foreground transition-all hover:-translate-y-1 hover:bg-slate-900 hover:text-white"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
+                </a>
+
+              </div>
+              <p className="mt-4 text-xs text-muted-foreground">
+                Dapatkan tips belajar & info event terbaru!
+              </p>
             </div>
             <div>
               <h4 className="mb-3 font-heading text-sm font-bold">Perusahaan</h4>
@@ -317,13 +365,6 @@ export default function HomePage() {
                 <li><Link href="#" className="hover:text-foreground">Tentang Kami</Link></li>
                 <li><Link href="#" className="hover:text-foreground">Kebijakan Privasi</Link></li>
                 <li><Link href="#" className="hover:text-foreground">Syarat & Ketentuan</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="mb-3 font-heading text-sm font-bold">Kontak</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>support@nusaskillz.id</li>
-                <li>(021) 5000-1234</li>
               </ul>
             </div>
           </div>
