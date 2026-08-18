@@ -3,16 +3,16 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import Input from "@/components/ui/input";
-import Card from "@/components/ui/card";
-import DarkModeToggle from "@/components/ui/darkmodetoggle";
-import { Mail, Lock, GraduationCap, AlertCircle } from "lucide-react";
+import { Button } from "@/components/UI/button";
+import Input from "@/components/UI/input";
+import Card from "@/components/UI/card";
+import DarkModeToggle from "@/components/UI/darkmodetoggle";
+import { Mail, Lock, GraduationCap, AlertCircle, CircleArrowLeft } from "lucide-react";
 import { login } from "@/lib/auth-client";
 
 export default function LoginPage() {
   const router = useRouter();
-  
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -26,16 +26,19 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      // Call the real backend API
-      await login({
+      const result = await login({
         email: formData.email,
         password: formData.password,
       });
-      
-      // If successful, redirect to the dashboard
-      router.push("/dashboard");
+
+      if (result.user.role === "TEACHER") {
+        router.push("/teacher/dashboard");
+      } else if (result.user.role === "ADMIN") {
+        router.push("/admin/dashboard");
+      } else {
+        router.push("/dashboard");
+      }
     } catch (err: any) {
-      // Show error message from backend (e.g., "Email belum terverifikasi")
       setError(err.message || "Gagal masuk. Periksa email dan password Anda.");
     } finally {
       setIsLoading(false);
@@ -51,7 +54,16 @@ export default function LoginPage() {
       <div className="absolute top-4 right-4 z-50 pointer-events-auto">
         <DarkModeToggle />
       </div>
-      
+
+      {/* Back to Home */}
+      <Link
+        href="/"
+        className="absolute top-4 left-4 z-50 flex items-center gap-2 rounded-full bg-card/80 px-4 py-2 text-sm font-semibold text-foreground shadow-sm ring-1 ring-border backdrop-blur transition-colors hover:bg-primary hover:text-primary-foreground"
+      >
+        <CircleArrowLeft className="h-4 w-4" />
+        Beranda
+      </Link>
+
       {/* Main Card */}
       <Card className="w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-500 relative z-10" padding="lg">
         {/* Header */}

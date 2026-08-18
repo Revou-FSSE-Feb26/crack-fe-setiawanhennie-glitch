@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { Button } from "@/components/UI/button";
-import Input from "@/components/ui/input";
-import Card from "@/components/ui/card";
+import Input from "@/components/UI/input";
+import Card from "@/components/UI/card";
 import DarkModeToggle from "@/components/UI/darkmodetoggle";
 import { useState } from "react";
-import { User, Mail, School, GraduationCap, Lock, AlertCircle, CheckCircle } from "lucide-react";
+import { User, Mail, School, GraduationCap, Lock, AlertCircle, CheckCircle, CircleArrowLeft } from "lucide-react";
 import { register } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { verifyEmail } from "@/lib/auth-client";
@@ -14,6 +14,7 @@ import { verifyEmail } from "@/lib/auth-client";
 export default function RegisterPage() {
   const router = useRouter();
   const [step, setStep] = useState<'register' | 'verify'>('register');
+  const [role, setRole] = useState<"STUDENT" | "TEACHER">("STUDENT");
   
   const [formData, setFormData] = useState({
     name: "",
@@ -75,6 +76,7 @@ export default function RegisterPage() {
         password: formData.password,
         school: formData.school,
         className: formData.className,
+        role,
       });
       setStep('verify');
     } catch (err: any) {
@@ -110,6 +112,15 @@ export default function RegisterPage() {
         <DarkModeToggle />
       </div>
 
+      {/* Back to Home */}
+      <Link
+        href="/"
+        className="absolute top-4 left-4 z-50 flex items-center gap-2 rounded-full bg-card/80 px-4 py-2 text-sm font-semibold text-foreground shadow-sm ring-1 ring-border backdrop-blur transition-colors hover:bg-primary hover:hover:text-primary-foreground"
+      >
+        <CircleArrowLeft className="h-4 w-4" />
+        Beranda
+      </Link>
+
       <Card className="w-full max-w-lg animate-in fade-in slide-in-from-bottom-4 duration-500 z-10" padding="lg">
         {step === 'register' && (
           <>
@@ -123,6 +134,32 @@ export default function RegisterPage() {
               <p className="text-muted-foreground">
                 Buat akun dan mulai naik level dalam belajarmu!
               </p>
+            </div>
+
+            {/* Role Toggle */}
+            <div className="mb-6 grid grid-cols-2 gap-1 rounded-xl bg-muted p-1">
+              <button
+                type="button"
+                onClick={() => setRole("STUDENT")}
+                className={`flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 font-heading text-sm font-bold transition-all ${
+                  role === "STUDENT"
+                    ? "bg-card text-primary shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Murid
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole("TEACHER")}
+                className={`flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 font-heading text-sm font-bold transition-all ${
+                  role === "TEACHER"
+                    ? "bg-card text-primary shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Guru
+              </button>
             </div>
 
             <form className="space-y-4" onSubmit={handleRegister}>
@@ -155,6 +192,7 @@ export default function RegisterPage() {
                   value={formData.school}
                   onChange={(e) => setFormData({ ...formData, school: e.target.value })}
                 />
+                {role === "STUDENT" && (
                 <Input 
                   label="Kelas" 
                   type="text" 
@@ -164,6 +202,7 @@ export default function RegisterPage() {
                   value={formData.className}
                   onChange={(e) => setFormData({ ...formData, className: e.target.value })}
                 />
+                )}
               </div>
               
               <Input

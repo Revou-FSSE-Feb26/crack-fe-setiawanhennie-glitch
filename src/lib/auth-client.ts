@@ -8,6 +8,7 @@ export interface RegisterData {
   password: string;
   school?: string;
   className?: string;
+  role?: "STUDENT" | "TEACHER";
 }
 
 export interface LoginData {
