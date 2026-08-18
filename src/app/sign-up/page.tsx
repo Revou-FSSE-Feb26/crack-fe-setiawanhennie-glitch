@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/UI/button";
 import Input from "@/components/ui/input";
 import Card from "@/components/ui/card";
-import DarkModeToggle from "@/components/ui/darkmodetoggle";
+import DarkModeToggle from "@/components/UI/darkmodetoggle";
 import { useState } from "react";
 import { User, Mail, School, GraduationCap, Lock, AlertCircle, CheckCircle } from "lucide-react";
 import { register } from "@/lib/auth-client";
@@ -19,7 +19,7 @@ export default function RegisterPage() {
     name: "",
     email: "",
     school: "",
-    className: "", // 'class' is a reserved word in JS
+    className: "",
     password: "",
     confirmPassword: "",
   });
@@ -76,7 +76,6 @@ export default function RegisterPage() {
         school: formData.school,
         className: formData.className,
       });
-      // If successful, move to the verification step
       setStep('verify');
     } catch (err: any) {
       setApiError(err.message || "Terjadi kesalahan saat mendaftar.");
@@ -95,7 +94,6 @@ export default function RegisterPage() {
         email: formData.email,
         otp: otp,
       });
-      // Redirect to sign-in on success
       router.push("/sign-in?verified=true");
     } catch (err: any) {
       setApiError(err.message || "Kode OTP salah atau kedaluwarsa.");

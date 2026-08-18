@@ -48,13 +48,27 @@ export default function HomePage() {
           <span className="font-heading text-xl font-extrabold">NusaSkillz</span>
         </Link>
 
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-            <nav className="hidden items-center gap-6 text-sm font-bold md:flex">
-              <a href="#cara-kerja" className="hover:text-primary">Cara Kerja</a>
-              <a href="#fitur" className="hover:text-primary">Fitur</a>
-              <a href="#kontak" className="hover:text-primary">Kontak</a>
-            </nav>
-        </div>
+          {/* Centered pill nav */}
+          <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 rounded-full border border-border/60 bg-card/70 p-1 shadow-sm backdrop-blur md:flex">
+            <a
+              href="#cara-kerja"
+              className="rounded-full px-4 py-1.5 text-sm font-bold text-muted-foreground transition-all hover:bg-accent hover:text-foreground"
+            >
+              Cara Kerja
+            </a>
+            <a
+              href="#fitur"
+              className="rounded-full px-4 py-1.5 text-sm font-bold text-muted-foreground transition-all hover:bg-accent hover:text-foreground"
+            >
+              Fitur
+            </a>
+            <a
+              href="#kontak"
+              className="rounded-full px-4 py-1.5 text-sm font-bold text-muted-foreground transition-all hover:bg-accent hover:text-foreground"
+            >
+              Kontak
+            </a>
+          </nav>
 
         <div className="flex items-center gap-2">
           <DarkModeToggle />
