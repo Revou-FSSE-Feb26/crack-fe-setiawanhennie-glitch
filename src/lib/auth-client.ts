@@ -131,3 +131,12 @@ export async function toggleUserSuspend(userId: string, suspend: boolean) {
   if (!res.ok) throw new Error('Gagal mengubah status');
   return res.json();
 }
+
+export async function fetchAdminStats() {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/users/stats`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Gagal memuat statistik');
+  return res.json();
+}

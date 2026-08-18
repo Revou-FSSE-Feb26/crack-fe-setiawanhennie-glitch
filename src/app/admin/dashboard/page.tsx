@@ -1,41 +1,58 @@
+"use client"
+
 import Link from "next/link"
-import { Button } from "@/components/UI/button"
 import { 
   GraduationCap, 
   LayoutDashboard, 
   Users, 
-  BookOpen, 
   Shield, 
   Database, 
   Activity, 
   AlertTriangle, 
   Search, 
   Bell, 
-  Server,
-  TrendingUp
 } from "lucide-react"
+import { useEffect, useState } from "react"
+import { fetchAdminStats } from "@/lib/auth-client";
+
+function timeAgo(dateString: string) {
+  const seconds = Math.floor((Date.now() - new Date(dateString).getTime()) / 1000);
+  if (seconds < 60) return "Baru saja";
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} menit lalu`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} jam lalu`;
+  const days = Math.floor(hours / 24);
+  return `${days} hari lalu`;
+}
 
 export default function AdminDashboardPage() {
-  const admin = { name: "Pak Admin", role: "Super Admin" }
+  const [admin, setAdmin] = useState({ name: "Admin", role: "Super Admin" })
+
+  useEffect(() => {
+    const stored = localStorage.getItem("user")
+    if (stored) {
+      const u = JSON.parse(stored)
+      setAdmin({ name: u.name || "Admin", role: "Super Admin" })
+    }
+  }, [])
   
-  const globalStats = [
-    { label: "Total Murid", value: "12,450", icon: Users, color: "bg-blue-500/10 text-blue-600", trend: "+12% bulan ini" },
-    { label: "Total Guru", value: "142", icon: GraduationCap, color: "bg-green-500/10 text-green-600", trend: "+5 bulan ini" },
-    { label: "Kursus Aktif", value: "86", icon: BookOpen, color: "bg-purple-500/10 text-purple-600", trend: "3 menunggu review" },
-    { label: "Uptime Sistem", value: "99.9%", icon: Activity, color: "bg-emerald-500/10 text-emerald-600", trend: "Sangat Stabil" },
-  ]
+  const [stats, setStats] = useState<any>(null)
+  const [systemOnline, setSystemOnline] = useState(false)
 
-  const recentSignups = [
-    { name: "Rina Wulandari", role: "Murid", school: "SMA 3 Bandung", time: "10 menit lalu" },
-    { name: "Pak Hendra", role: "Guru", school: "SMP 1 Surabaya", time: "1 jam lalu" },
-    { name: "Dimas Anggara", role: "Murid", school: "SMA 8 Jakarta", time: "3 jam lalu" },
-  ]
-
-  const systemHealth = [
-    { name: "Database (SQLite)", status: "Online", load: "24%", color: "bg-emerald-500" },
-    { name: "API Server", status: "Online", load: "12%", color: "bg-emerald-500" },
-    { name: "Storage (Gambar & Aset)", status: "Online", load: "68%", color: "bg-yellow-500" },
-  ]
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        const data = await fetchAdminStats()
+        setStats(data)
+        setSystemOnline(true)
+      } catch (error) {
+        console.error("Failed to fetch admin stats:", error)
+        setSystemOnline(false)
+      }
+    }
+    loadStats()
+  }, [])
 
   return (
     <div className="flex min-h-svh bg-background">
@@ -117,83 +134,91 @@ export default function AdminDashboardPage() {
           
           <div className="mb-8">
             <h1 className="font-heading text-3xl font-extrabold">Pusat Kontrol Platform</h1>
-            <p className="text-muted-foreground mt-1">Pantau kesehatan sistem, pengguna, dan konten NusaSkillz.</p>
+            <p className="text-muted-foreground mt-1">Pantau kesehatan sistem, pengguna, dan konten NusaSkillz</p>
           </div>
 
           {/* Global Stats Grid */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-            {globalStats.map((stat) => (
-              <div key={stat.label} className="rounded-2xl bg-card p-5 ring-1 ring-border shadow-sm">
-                <div className="flex items-center justify-between mb-4">
-                  <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${stat.color}`}>
-                    <stat.icon className="h-5 w-5" />
-                  </div>
-                  <TrendingUp className="h-4 w-4 text-emerald-500" />
+          <div className="grid gap-5 sm:grid-cols-3">
+            {[
+              { icon: Users, value: stats?.totalStudents ?? "—", label: "Total Murid", color: "bg-blue-500/10 text-blue-600" },
+              { icon: GraduationCap, value: stats?.totalTeachers ?? "—", label: "Total Guru", color: "bg-emerald-500/10 text-emerald-600" },
+              { icon: Activity, value: stats?.totalCourses ?? "—", label: "Total Kursus", color: "bg-purple-500/10 text-purple-600" },
+            ].map((card) => (
+              <div key={card.label} className="flex items-center justify-between rounded-xl bg-card p-6 shadow-sm ring-1 ring-border">
+                <div className={`flex h-12 w-12 items-center justify-center rounded-full ${card.color}`}>
+                  <card.icon className="h-6 w-6" />
                 </div>
-                <p className="text-2xl font-bold font-heading">{stat.value}</p>
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
-                <p className="text-xs text-emerald-600 font-medium mt-1">{stat.trend}</p>
+                <div className="text-right">
+                  <p className="font-heading text-2xl font-extrabold">{card.value}</p>
+                  <p className="text-sm text-muted-foreground">{card.label}</p>
+                </div>
               </div>
             ))}
           </div>
 
           {/* Two Column Layout */}
-          <div className="grid gap-6 lg:grid-cols-3">
+          <div className="grid gap-6 lg:grid-cols-3 mt-6">
             
             {/* Left Column: Approvals & System Health */}
             <div className="lg:col-span-2 space-y-6">
               
               {/* System Health */}
-              <div className="rounded-2xl bg-card p-6 ring-1 ring-border shadow-sm">
-                <h2 className="font-heading text-xl font-bold flex items-center gap-2 mb-6">
-                  <Server className="h-5 w-5 text-primary" />
+              <div className="rounded-xl bg-card p-6 shadow-sm ring-1 ring-border">
+                <h3 className="mb-4 flex items-center gap-2 font-heading text-lg font-bold">
+                  <Activity className="h-5 w-5 text-primary" />
                   Kesehatan Sistem
-                </h2>
-                <div className="space-y-5">
-                  {systemHealth.map((sys) => (
-                    <div key={sys.name}>
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <div className={`h-2 w-2 rounded-full ${sys.color}`}></div>
-                          <span className="text-sm font-bold">{sys.name}</span>
-                        </div>
-                        <span className="text-xs font-medium text-muted-foreground">{sys.status} • Beban {sys.load}</span>
-                      </div>
-                      <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
-                        <div 
-                          className={`h-full rounded-full ${sys.color} transition-all`} 
-                          style={{ width: sys.load }}
-                        ></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+                </h3>
 
+                {[
+                  { name: "Database (Supabase)", load: 24, online: systemOnline },
+                  { name: "API Server", load: 12, online: systemOnline },
+                  { name: "Storage (Gambar & Aset)", load: 68, online: true },
+                ].map((item) => (
+                  <div key={item.name} className="mb-4 last:mb-0">
+                    <div className="mb-1 flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-2 font-semibold">
+                        <span className={`h-2 w-2 rounded-full ${item.online ? "bg-emerald-500" : "bg-red-500"}`} />
+                        {item.name}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {item.online ? "Online" : "Offline"} • Beban {item.load}%
+                      </span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-muted">
+                      <div
+                        className={`h-1.5 rounded-full ${item.load > 60 ? "bg-amber-500" : "bg-emerald-500"}`}
+                        style={{ width: `${item.load}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
             </div>
+          </div>
 
             {/* Right Column: Recent Signups & Quick Actions */}
             <div className="space-y-6">
               
               {/* Recent Signups */}
-              <div className="rounded-2xl bg-card p-6 ring-1 ring-border shadow-sm">
-                <h2 className="font-heading text-lg font-bold flex items-center gap-2 mb-4">
-                  <Users className="h-5 w-5 text-blue-500" />
+              <div className="rounded-xl bg-card p-6 shadow-sm ring-1 ring-border">
+                <h3 className="mb-4 flex items-center gap-2 font-heading text-lg font-bold">
+                  <Users className="h-5 w-5 text-primary" />
                   Pendaftaran Terbaru
-                </h2>
+                </h3>
                 <div className="space-y-4">
-                  {recentSignups.map((user, index) => (
-                    <div key={index} className="flex items-center gap-3 pb-4 border-b border-border last:border-0 last:pb-0">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary font-bold text-xs">
-                        {user.name.split(' ').map(n => n[0]).join('')}
+                  {stats?.recentUsers?.map((u: any) => (
+                    <div key={u.id} className="flex items-center gap-3 border-b border-border pb-3 last:border-0 last:pb-0">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                        {u.name.split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase()}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold truncate">{user.name}</p>
-                        <p className="text-xs text-muted-foreground truncate">{user.role} • {user.school}</p>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-bold">{u.name}</p>
+                        <p className="truncate text-xs text-muted-foreground">
+                          {u.role === "TEACHER" ? "Guru" : u.role === "ADMIN" ? "Admin" : "Murid"} • {u.school || "-"}
+                        </p>
                       </div>
-                      <span className="text-xs text-muted-foreground whitespace-nowrap">{user.time}</span>
+                      <span className="shrink-0 text-xs text-muted-foreground">{timeAgo(u.createdAt)}</span>
                     </div>
-                  ))}
+                  )) ?? <p className="text-sm text-muted-foreground">Memuat...</p>}
                 </div>
               </div>
             </div>

@@ -15,6 +15,7 @@ import {
   Ban,
   CheckCircle2,
   CircleArrowLeft,
+  Search,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -40,6 +41,9 @@ export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [roleFilter, setRoleFilter] = useState<"ALL" | "STUDENT" | "TEACHER" | "ADMIN">("ALL");
+  const [statusFilter, setStatusFilter] = useState<"ALL" | "ACTIVE" | "SUSPENDED">("ALL");
 
   const loadUsers = async () => {
     try {
@@ -75,6 +79,22 @@ export default function AdminUsersPage() {
     }
   };
 
+  const filteredUsers = users.filter((user) => {
+  const q = searchQuery.toLowerCase();
+  const matchesSearch =
+    user.name.toLowerCase().includes(q) ||
+    user.email.toLowerCase().includes(q) ||
+    (user.school || "").toLowerCase().includes(q);
+
+  const matchesRole = roleFilter === "ALL" || user.role === roleFilter;
+
+  const matchesStatus =
+    statusFilter === "ALL" ||
+    (statusFilter === "SUSPENDED" ? user.isSuspended : !user.isSuspended);
+
+  return matchesSearch && matchesRole && matchesStatus;
+});
+
   return (
     <div className="min-h-screen bg-background p-6">
         <Link
@@ -101,9 +121,42 @@ export default function AdminUsersPage() {
           </div>
         )}
 
+        {/* Filter & Search Bar */}
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Cari nama, email, atau kelas..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full rounded-lg border border-border bg-card py-2 pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+            />
+          </div>
+          <select
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value as any)}
+            className="rounded-lg border border-border bg-card px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+          >
+            <option value="ALL">Semua Role</option>
+            <option value="STUDENT">Murid</option>
+            <option value="TEACHER">Guru</option>
+            <option value="ADMIN">Admin</option>
+          </select>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as any)}
+            className="rounded-lg border border-border bg-card px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+          >
+            <option value="ALL">Semua Status</option>
+            <option value="ACTIVE">Aktif</option>
+            <option value="SUSPENDED">Ditangguhkan</option>
+          </select>
+        </div>
+
         <div className="overflow-hidden rounded-xl bg-card shadow-sm ring-1 ring-border">
-          <div className="border-b border-border bg-muted/30 px-6 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Total: {users.length} pengguna
+          <div className="border-b border-border bg-muted/30 px-6 py-3 text-xs font-semibold tracking-wide text-muted-foreground">
+            Menampilkan {filteredUsers.length} dari {users.length} pengguna
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -112,10 +165,10 @@ export default function AdminUsersPage() {
                   <th className="px-6 py-3 text-left">Nama</th>
                   <th className="px-6 py-3 text-left">Email</th>
                   <th className="px-6 py-3 text-left">Role</th>
-                  <th className="px-6 py-3 text-left">Sekolah / Kelas</th>
+                  <th className="px-6 py-3 text-left">Kelas</th>
                   <th className="px-6 py-3 text-left">Status</th>
                   <th className="px-6 py-3 text-left">Bergabung</th>
-                  <th className="px-6 py-3 text-right">Aksi</th>
+                  <th className="px-6 py-3 text-center">Aksi</th>
                 </tr>
               </thead>
               <tbody>
@@ -125,14 +178,14 @@ export default function AdminUsersPage() {
                       Memuat...
                     </td>
                   </tr>
-                ) : users.length === 0 ? (
+                ) : filteredUsers.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="px-6 py-8 text-center text-muted-foreground">
-                      Belum ada pengguna
+                      Tidak ditemukan pengguna yang sesuai
                     </td>
                   </tr>
                 ) : (
-                  users.map((user) => {
+                  filteredUsers.map((user) => {
                     const RoleIcon = roleConfig[user.role].icon;
                     return (
                       <tr key={user.id} className="border-b border-border last:border-0 hover:bg-muted/30">
