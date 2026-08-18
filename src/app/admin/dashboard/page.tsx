@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/UI/button"
 import { 
   GraduationCap, 
   LayoutDashboard, 
@@ -11,14 +11,11 @@ import {
   AlertTriangle, 
   Search, 
   Bell, 
-  CheckCircle2, 
-  XCircle,
   Server,
   TrendingUp
 } from "lucide-react"
 
 export default function AdminDashboardPage() {
-  // Mock Data
   const admin = { name: "Pak Admin", role: "Super Admin" }
   
   const globalStats = [
@@ -26,12 +23,6 @@ export default function AdminDashboardPage() {
     { label: "Total Guru", value: "142", icon: GraduationCap, color: "bg-green-500/10 text-green-600", trend: "+5 bulan ini" },
     { label: "Kursus Aktif", value: "86", icon: BookOpen, color: "bg-purple-500/10 text-purple-600", trend: "3 menunggu review" },
     { label: "Uptime Sistem", value: "99.9%", icon: Activity, color: "bg-emerald-500/10 text-emerald-600", trend: "Sangat Stabil" },
-  ]
-
-  const pendingApprovals = [
-    { id: 1, title: "Kuis Dasar-Dasar Koding Python", author: "Pak Joko", type: "Kuis", date: "2 jam lalu" },
-    { id: 2, title: "Materi Sejarah Kemerdekaan RI", author: "Bu Ratna", type: "Materi", date: "5 jam lalu" },
-    { id: 3, title: "Latihan Soal Olimpiade Matematika", author: "Pak Budi", type: "Kuis", date: "1 hari lalu" },
   ]
 
   const recentSignups = [
@@ -63,19 +54,15 @@ export default function AdminDashboardPage() {
             <LayoutDashboard className="h-5 w-5" />
             Dashboard
           </Link>
-          <Link href="#" className="flex items-center gap-3 rounded-xl px-4 py-3 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
+          <Link href="/admin/users" className="flex items-center gap-3 rounded-xl px-4 py-3 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
             <Users className="h-5 w-5" />
             Manajemen Pengguna
           </Link>
-          <Link href="#" className="flex items-center gap-3 rounded-xl px-4 py-3 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
-            <BookOpen className="h-5 w-5" />
-            Manajemen Kursus
-          </Link>
-          <Link href="#" className="flex items-center gap-3 rounded-xl px-4 py-3 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
+          <Link href="/admin/reports" className="flex items-center gap-3 rounded-xl px-4 py-3 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
             <AlertTriangle className="h-5 w-5" />
             Laporan & Moderasi
           </Link>
-          <Link href="#" className="flex items-center gap-3 rounded-xl px-4 py-3 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
+          <Link href="/admin/settings" className="flex items-center gap-3 rounded-xl px-4 py-3 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
             <Database className="h-5 w-5" />
             Pengaturan Sistem
           </Link>
@@ -156,42 +143,6 @@ export default function AdminDashboardPage() {
             {/* Left Column: Approvals & System Health */}
             <div className="lg:col-span-2 space-y-6">
               
-              {/* Pending Approvals */}
-              <div className="rounded-2xl bg-card p-6 ring-1 ring-border shadow-sm">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="font-heading text-xl font-bold flex items-center gap-2">
-                    <AlertTriangle className="h-5 w-5 text-orange-500" />
-                    Persetujuan Konten (3)
-                  </h2>
-                  <Button variant="ghost" size="sm" className="text-sm">Lihat Semua</Button>
-                </div>
-                
-                <div className="space-y-3">
-                  {pendingApprovals.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between p-4 rounded-xl bg-secondary/30 border border-border">
-                      <div className="flex items-center gap-4">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                          <BookOpen className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold font-heading">{item.title}</p>
-                          <p className="text-xs text-muted-foreground">Diajukan oleh {item.author} • {item.date}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" className="h-8 w-8 p-0 rounded-full">
-                          <XCircle className="h-4 w-4 text-rose-500" />
-                        </Button>
-                        <Button size="sm" className="h-8 px-4">
-                          <CheckCircle2 className="h-4 w-4 mr-2" />
-                          Setujui
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
               {/* System Health */}
               <div className="rounded-2xl bg-card p-6 ring-1 ring-border shadow-sm">
                 <h2 className="font-heading text-xl font-bold flex items-center gap-2 mb-6">
@@ -243,23 +194,6 @@ export default function AdminDashboardPage() {
                       <span className="text-xs text-muted-foreground whitespace-nowrap">{user.time}</span>
                     </div>
                   ))}
-                </div>
-              </div>
-
-              {/* Quick Admin Actions */}
-              <div className="rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 p-6 text-white shadow-sm">
-                <h2 className="font-heading text-lg font-bold mb-2">Aksi Cepat Admin</h2>
-                <p className="text-sm opacity-80 mb-4">Kelola platform dengan cepat.</p>
-                <div className="flex flex-col gap-2">
-                  <Button className="w-full bg-white/10 hover:bg-white/20 text-white border-none">
-                    + Tambah Guru Baru
-                  </Button>
-                  <Button variant="outline" className="w-full bg-transparent text-white border-white/20 hover:bg-white/10">
-                    📥 Ekspor Data Pengguna
-                  </Button>
-                  <Button variant="outline" className="w-full bg-transparent text-white border-white/20 hover:bg-white/10">
-                    🔄 Backup Database
-                  </Button>
                 </div>
               </div>
             </div>
