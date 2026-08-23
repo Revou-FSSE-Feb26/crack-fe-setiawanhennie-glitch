@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
@@ -18,12 +17,7 @@ import {
   FileText,
   UserCircle,
 } from "lucide-react";
-import {
-  fetchModerationStats,
-  fetchOpenReports,
-  fetchModerationHistory,
-  resolveReport,
-} from "@/lib/auth-client";
+import { fetchModerationStats, fetchOpenReports, fetchModerationHistory, resolveReport } from "@/lib/auth-client";
 
 type Report = {
   id: string;
