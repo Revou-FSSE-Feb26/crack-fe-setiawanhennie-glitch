@@ -7,10 +7,10 @@ import {
   Users,
   Shield,
   Database,
-  Activity,
   AlertTriangle,
   Search,
   Bell,
+  School,
 } from "lucide-react"
 import { useEffect, useState } from "react"
 import { fetchAdminStats } from "@/lib/auth-client"
@@ -27,42 +27,33 @@ function timeAgo(dateString: string) {
 }
 
 export default function AdminDashboardPage() {
-  const [admin, setAdmin] = useState({ name: "Admin", role: "Super Admin" })
+  const [admin, setAdmin] = useState({ name: "Admin", role: "Admin Sekolah", school: "" })
   const [stats, setStats] = useState<any>(null)
-  const [systemOnline, setSystemOnline] = useState(false)
-  const [apiLatency, setApiLatency] = useState<number | null>(null)
 
   useEffect(() => {
     const stored = localStorage.getItem("user")
     if (stored) {
       const u = JSON.parse(stored)
-      setAdmin({ name: u.name || "Admin", role: "Super Admin" })
+      setAdmin({ name: u.name || "Admin", role: "Admin Sekolah", school: u.school || "" })
     }
   }, [])
 
   useEffect(() => {
     const loadStats = async () => {
-      const start = performance.now()
       try {
         const data = await fetchAdminStats()
         setStats(data)
-        setSystemOnline(true)
-        setApiLatency(Math.round(performance.now() - start))
       } catch (error) {
         console.error("Failed to fetch admin stats:", error)
-        setSystemOnline(false)
-        setApiLatency(null)
       }
     }
     loadStats()
   }, [])
 
-  const latencyBar = (ms: number | null) => {
-    if (ms === null) return { width: "0%", color: "bg-red-500" }
-    const width = Math.min(100, Math.max(8, Math.round((ms / 500) * 100)))
-    const color = ms < 150 ? "bg-emerald-500" : ms < 300 ? "bg-amber-500" : "bg-red-500"
-    return { width: `${width}%`, color }
-  }
+  const classDistribution = stats?.classDistribution ?? []
+  const maxClassCount = classDistribution.length
+    ? Math.max(...classDistribution.map((c: any) => c._count._all))
+    : 1
 
   return (
     <div className="flex min-h-svh bg-background">
@@ -98,9 +89,9 @@ export default function AdminDashboardPage() {
           <div className="rounded-xl bg-secondary/50 p-4 border border-border">
             <div className="flex items-center gap-2 mb-2">
               <Shield className="h-4 w-4 text-primary" />
-              <span className="text-xs font-bold font-heading">Mode Admin</span>
+              <span className="text-xs font-bold font-heading">Mode Admin Sekolah</span>
             </div>
-            <p className="text-xs text-muted-foreground">Anda memiliki akses penuh ke seluruh platform.</p>
+            <p className="text-xs text-muted-foreground">Kelola murid, guru, dan pengaturan sekolah Anda.</p>
           </div>
         </div>
       </aside>
@@ -114,7 +105,7 @@ export default function AdminDashboardPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Cari pengguna, kursus, atau laporan..."
+                placeholder="Cari murid, guru, atau kelas..."
                 className="w-full h-9 pl-9 pr-4 rounded-lg bg-secondary border-none text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
             </div>
@@ -140,16 +131,18 @@ export default function AdminDashboardPage() {
         {/* Dashboard Content */}
         <main className="flex-1 p-6 overflow-y-auto">
           <div className="mb-8">
-            <h1 className="font-heading text-3xl font-extrabold">Pusat Kontrol Platform</h1>
-            <p className="text-muted-foreground mt-1">Pantau kesehatan sistem, pengguna, dan konten NusaSkillz</p>
+            <h1 className="font-heading text-3xl font-extrabold">Pusat Kontrol Sekolah</h1>
+            <p className="text-muted-foreground mt-1">
+              Pantau aktivitas {admin.school || "sekolah Anda"} di NusaSkillz
+            </p>
           </div>
 
-          {/* Global Stats Grid */}
+          {/* School Stats Grid */}
           <div className="grid gap-5 sm:grid-cols-3">
             {[
               { icon: Users, value: stats?.totalStudents ?? "—", label: "Total Murid", color: "bg-blue-500/10 text-blue-600" },
               { icon: GraduationCap, value: stats?.totalTeachers ?? "—", label: "Total Guru", color: "bg-emerald-500/10 text-emerald-600" },
-              { icon: Activity, value: stats?.totalCourses ?? "—", label: "Total Kursus", color: "bg-purple-500/10 text-purple-600" },
+              { icon: School, value: classDistribution.length || "—", label: "Total Kelas", color: "bg-purple-500/10 text-purple-600" },
             ].map((card) => (
               <div key={card.label} className="flex items-center justify-between rounded-xl bg-card p-6 shadow-sm ring-1 ring-border">
                 <div className={`flex h-12 w-12 items-center justify-center rounded-full ${card.color}`}>
@@ -165,43 +158,40 @@ export default function AdminDashboardPage() {
 
           {/* Two Column Layout */}
           <div className="mt-6 grid gap-6 lg:grid-cols-3">
-            {/* Left Column: System Health */}
+            {/* Left Column: Class Distribution */}
             <div className="lg:col-span-2 space-y-6">
               <div className="rounded-xl bg-card p-6 shadow-sm ring-1 ring-border">
                 <h3 className="mb-4 flex items-center gap-2 font-heading text-lg font-bold">
-                  <Activity className="h-5 w-5 text-primary" />
-                  Kesehatan Sistem
+                  <School className="h-5 w-5 text-primary" />
+                  Distribusi Kelas
                 </h3>
 
-                {[
-                  { name: "Database (Supabase)", online: systemOnline, latency: apiLatency },
-                  { name: "API Server", online: systemOnline, latency: apiLatency },
-                ].map((item) => {
-                  const bar = latencyBar(item.online ? item.latency : null)
-                  return (
-                    <div key={item.name} className="mb-4 last:mb-0">
-                      <div className="mb-1 flex items-center justify-between text-sm">
-                        <span className="flex items-center gap-2 font-semibold">
-                          <span className={`h-2 w-2 rounded-full ${item.online ? "bg-emerald-500" : "bg-red-500"}`} />
-                          {item.name}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {item.online ? `Online • ${item.latency ?? "—"} ms` : "Offline"}
-                        </span>
+                {classDistribution.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Belum ada murid yang terdata di kelas manapun.</p>
+                ) : (
+                  classDistribution.map((c: any) => {
+                    const count = c._count._all
+                    const pct = Math.round((count / maxClassCount) * 100)
+                    return (
+                      <div key={c.className} className="mb-4 last:mb-0">
+                        <div className="mb-1 flex items-center justify-between text-sm">
+                          <span className="font-semibold">Kelas {c.className}</span>
+                          <span className="text-xs text-muted-foreground">{count} murid</span>
+                        </div>
+                        <div className="h-1.5 rounded-full bg-muted">
+                          <div
+                            className="h-1.5 rounded-full bg-primary transition-all duration-500"
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
                       </div>
-                      <div className="h-1.5 rounded-full bg-muted">
-                        <div
-                          className={`h-1.5 rounded-full transition-all duration-500 ${bar.color}`}
-                          style={{ width: bar.width }}
-                        />
-                      </div>
-                    </div>
-                  )
-                })}
+                    )
+                  })
+                )}
               </div>
             </div>
 
-            {/* Right Column: Recent Signups */}
+            {/* Right Column: Recent Signups (school-scoped) */}
             <div className="space-y-6">
               <div className="rounded-xl bg-card p-6 shadow-sm ring-1 ring-border">
                 <h3 className="mb-4 flex items-center gap-2 font-heading text-lg font-bold">

@@ -141,3 +141,46 @@ export async function fetchAdminStats() {
   return res.json();
 }
 
+export async function fetchModerationStats() {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/moderation/stats`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Gagal memuat statistik moderasi');
+  return res.json();
+}
+
+export async function fetchOpenReports() {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/moderation/reports`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Gagal memuat laporan');
+  return res.json();
+}
+
+export async function fetchModerationHistory() {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/moderation/history`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Gagal memuat riwayat');
+  return res.json();
+}
+
+export async function resolveReport(
+  reportId: string,
+  action: 'IGNORED' | 'CONTENT_HIDDEN' | 'USER_SUSPENDED'
+) {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/moderation/reports/${reportId}/resolve`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ action }),
+  });
+  if (!res.ok) throw new Error('Gagal menyelesaikan laporan');
+  return res.json();
+}
