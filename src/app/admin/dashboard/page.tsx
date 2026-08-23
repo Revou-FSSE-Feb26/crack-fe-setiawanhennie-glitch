@@ -1,33 +1,36 @@
 "use client"
 
 import Link from "next/link"
-import { 
-  GraduationCap, 
-  LayoutDashboard, 
-  Users, 
-  Shield, 
-  Database, 
-  Activity, 
-  AlertTriangle, 
-  Search, 
-  Bell, 
+import {
+  GraduationCap,
+  LayoutDashboard,
+  Users,
+  Shield,
+  Database,
+  Activity,
+  AlertTriangle,
+  Search,
+  Bell,
 } from "lucide-react"
 import { useEffect, useState } from "react"
-import { fetchAdminStats } from "@/lib/auth-client";
+import { fetchAdminStats } from "@/lib/auth-client"
 
 function timeAgo(dateString: string) {
-  const seconds = Math.floor((Date.now() - new Date(dateString).getTime()) / 1000);
-  if (seconds < 60) return "Baru saja";
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes} menit lalu`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours} jam lalu`;
-  const days = Math.floor(hours / 24);
-  return `${days} hari lalu`;
+  const seconds = Math.floor((Date.now() - new Date(dateString).getTime()) / 1000)
+  if (seconds < 60) return "Baru saja"
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60) return `${minutes} menit lalu`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours} jam lalu`
+  const days = Math.floor(hours / 24)
+  return `${days} hari lalu`
 }
 
 export default function AdminDashboardPage() {
   const [admin, setAdmin] = useState({ name: "Admin", role: "Super Admin" })
+  const [stats, setStats] = useState<any>(null)
+  const [systemOnline, setSystemOnline] = useState(false)
+  const [apiLatency, setApiLatency] = useState<number | null>(null)
 
   useEffect(() => {
     const stored = localStorage.getItem("user")
@@ -36,27 +39,33 @@ export default function AdminDashboardPage() {
       setAdmin({ name: u.name || "Admin", role: "Super Admin" })
     }
   }, [])
-  
-  const [stats, setStats] = useState<any>(null)
-  const [systemOnline, setSystemOnline] = useState(false)
 
   useEffect(() => {
     const loadStats = async () => {
+      const start = performance.now()
       try {
         const data = await fetchAdminStats()
         setStats(data)
         setSystemOnline(true)
+        setApiLatency(Math.round(performance.now() - start))
       } catch (error) {
         console.error("Failed to fetch admin stats:", error)
         setSystemOnline(false)
+        setApiLatency(null)
       }
     }
     loadStats()
   }, [])
 
+  const latencyBar = (ms: number | null) => {
+    if (ms === null) return { width: "0%", color: "bg-red-500" }
+    const width = Math.min(100, Math.max(8, Math.round((ms / 500) * 100)))
+    const color = ms < 150 ? "bg-emerald-500" : ms < 300 ? "bg-amber-500" : "bg-red-500"
+    return { width: `${width}%`, color }
+  }
+
   return (
     <div className="flex min-h-svh bg-background">
-      
       {/* --- SIDEBAR --- */}
       <aside className="hidden w-64 flex-col border-r border-border bg-card p-6 md:flex">
         <div className="flex items-center gap-2 mb-8">
@@ -98,20 +107,19 @@ export default function AdminDashboardPage() {
 
       {/* --- MAIN CONTENT --- */}
       <div className="flex-1 flex flex-col">
-        
         {/* Top Header */}
         <header className="flex h-16 items-center justify-between border-b border-border bg-card/50 px-6 backdrop-blur-sm sticky top-0 z-40">
           <div className="flex items-center gap-4 flex-1 max-w-md">
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <input 
-                type="text" 
-                placeholder="Cari pengguna, kursus, atau laporan..." 
+              <input
+                type="text"
+                placeholder="Cari pengguna, kursus, atau laporan..."
                 className="w-full h-9 pl-9 pr-4 rounded-lg bg-secondary border-none text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
             </div>
           </div>
-          
+
           <div className="flex items-center gap-4">
             <button className="relative text-muted-foreground hover:text-foreground">
               <Bell className="h-5 w-5" />
@@ -123,7 +131,7 @@ export default function AdminDashboardPage() {
                 <p className="text-xs text-muted-foreground">{admin.role}</p>
               </div>
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-sm">
-                PA
+                {admin.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}
               </div>
             </div>
           </div>
@@ -131,7 +139,6 @@ export default function AdminDashboardPage() {
 
         {/* Dashboard Content */}
         <main className="flex-1 p-6 overflow-y-auto">
-          
           <div className="mb-8">
             <h1 className="font-heading text-3xl font-extrabold">Pusat Kontrol Platform</h1>
             <p className="text-muted-foreground mt-1">Pantau kesehatan sistem, pengguna, dan konten NusaSkillz</p>
@@ -157,12 +164,9 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* Two Column Layout */}
-          <div className="grid gap-6 lg:grid-cols-3 mt-6">
-            
-            {/* Left Column: Approvals & System Health */}
+          <div className="mt-6 grid gap-6 lg:grid-cols-3">
+            {/* Left Column: System Health */}
             <div className="lg:col-span-2 space-y-6">
-              
-              {/* System Health */}
               <div className="rounded-xl bg-card p-6 shadow-sm ring-1 ring-border">
                 <h3 className="mb-4 flex items-center gap-2 font-heading text-lg font-bold">
                   <Activity className="h-5 w-5 text-primary" />
@@ -170,35 +174,35 @@ export default function AdminDashboardPage() {
                 </h3>
 
                 {[
-                  { name: "Database (Supabase)", load: 24, online: systemOnline },
-                  { name: "API Server", load: 12, online: systemOnline },
-                  { name: "Storage (Gambar & Aset)", load: 68, online: true },
-                ].map((item) => (
-                  <div key={item.name} className="mb-4 last:mb-0">
-                    <div className="mb-1 flex items-center justify-between text-sm">
-                      <span className="flex items-center gap-2 font-semibold">
-                        <span className={`h-2 w-2 rounded-full ${item.online ? "bg-emerald-500" : "bg-red-500"}`} />
-                        {item.name}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {item.online ? "Online" : "Offline"} • Beban {item.load}%
-                      </span>
+                  { name: "Database (Supabase)", online: systemOnline, latency: apiLatency },
+                  { name: "API Server", online: systemOnline, latency: apiLatency },
+                ].map((item) => {
+                  const bar = latencyBar(item.online ? item.latency : null)
+                  return (
+                    <div key={item.name} className="mb-4 last:mb-0">
+                      <div className="mb-1 flex items-center justify-between text-sm">
+                        <span className="flex items-center gap-2 font-semibold">
+                          <span className={`h-2 w-2 rounded-full ${item.online ? "bg-emerald-500" : "bg-red-500"}`} />
+                          {item.name}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {item.online ? `Online • ${item.latency ?? "—"} ms` : "Offline"}
+                        </span>
+                      </div>
+                      <div className="h-1.5 rounded-full bg-muted">
+                        <div
+                          className={`h-1.5 rounded-full transition-all duration-500 ${bar.color}`}
+                          style={{ width: bar.width }}
+                        />
+                      </div>
                     </div>
-                    <div className="h-1.5 rounded-full bg-muted">
-                      <div
-                        className={`h-1.5 rounded-full ${item.load > 60 ? "bg-amber-500" : "bg-emerald-500"}`}
-                        style={{ width: `${item.load}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
+                  )
+                })}
+              </div>
             </div>
-          </div>
 
-            {/* Right Column: Recent Signups & Quick Actions */}
+            {/* Right Column: Recent Signups */}
             <div className="space-y-6">
-              
-              {/* Recent Signups */}
               <div className="rounded-xl bg-card p-6 shadow-sm ring-1 ring-border">
                 <h3 className="mb-4 flex items-center gap-2 font-heading text-lg font-bold">
                   <Users className="h-5 w-5 text-primary" />

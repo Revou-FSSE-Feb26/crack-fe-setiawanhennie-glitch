@@ -309,7 +309,7 @@ export default function HomePage() {
       <footer className="border-t border-border py-12">
         <div className="mx-auto max-w-6xl px-4">
           <div className="grid gap-8 md:grid-cols-5">
-            <div className="md:col-span-2">
+            <div className="md:col-span-3">
               <div className="mb-4 flex items-center gap-2">
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                   <GraduationCap className="h-5 w-5" />
