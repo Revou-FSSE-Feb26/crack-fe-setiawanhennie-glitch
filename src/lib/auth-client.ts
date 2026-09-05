@@ -184,3 +184,12 @@ export async function resolveReport(
   if (!res.ok) throw new Error('Gagal menyelesaikan laporan');
   return res.json();
 }
+
+export async function fetchTeacherStats() {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/teacher/stats`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Gagal memuat statistik guru');
+  return res.json();
+}
