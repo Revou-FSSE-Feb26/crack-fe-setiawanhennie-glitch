@@ -193,3 +193,99 @@ export async function fetchTeacherStats() {
   if (!res.ok) throw new Error('Gagal memuat statistik guru');
   return res.json();
 }
+
+export async function fetchTeacherClasses() {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/teacher/classes`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) throw new Error('Gagal memuat kelas');
+  return res.json();
+}
+
+export async function fetchTeacherMaterials() {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/teacher/materials`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) throw new Error('Gagal memuat materi');
+  return res.json();
+}
+
+export async function fetchTeacherGrading() {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/teacher/grading`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) throw new Error('Gagal memuat penilaian');
+  return res.json();
+}
+
+export async function fetchTeacherReports() {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/teacher/reports`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) throw new Error('Gagal memuat laporan');
+  return res.json();
+}
+
+export async function createCourse(data: { title: string; description: string; emoji: string; color: string }) {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/teacher/courses`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Gagal membuat kursus');
+  return res.json();
+}
+
+export async function createLesson(courseId: string, data: { title: string; content: string }) {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/teacher/courses/${courseId}/lessons`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Gagal membuat pelajaran');
+  return res.json();
+}
+
+export async function extractDocument(file: File) {
+  const token = getToken();
+  const form = new FormData();
+  form.append('file', file);
+  const res = await fetch(`${API_URL_BASE}/teacher/extract`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` }, // ⚠️ NO Content-Type — FormData sets it
+    body: form,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.message || 'Gagal mengekstrak dokumen');
+  }
+  return res.json();
+}
+
+export async function fetchLesson(lessonId: string) {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/teacher/lessons/${lessonId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Gagal memuat pelajaran');
+  return res.json();
+}
+
+export async function updateLesson(lessonId: string, data: { title: string; content: string }) {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/teacher/lessons/${lessonId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Gagal memperbarui pelajaran');
+  return res.json();
+}
+
+export async function deleteLesson(lessonId: string) {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/teacher/lessons/${lessonId}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Gagal menghapus pelajaran');
+  return res.json();
+}
