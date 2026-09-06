@@ -51,54 +51,59 @@ export default function TeacherMaterialsPage() {
   const [editSaving, setEditSaving] = useState(false);
   const [editError, setEditError] = useState("");
   const [editForm, setEditForm] = useState({ id: "", title: "", content: "" });
+  // Quiz builder state
   const [quizzes, setQuizzes] = useState<any[]>([]);
   const [quizOpen, setQuizOpen] = useState(false);
   const [quizSaving, setQuizSaving] = useState(false);
   const [quizError, setQuizError] = useState("");
+  const emptyQuestion = {
+    type: "MULTIPLE_CHOICE",
+    prompt: "",
+    options: ["", "", "", ""],
+    answer: "",
+    pairs: [{ left: "", right: "" }],
+  };
   const [quizForm, setQuizForm] = useState({
     title: "",
     lessonId: "",
     timeLimit: "",
     lives: "3",
     xpReward: "50",
-    questions: [{ type: "MULTIPLE_CHOICE", prompt: "", options: ["", "", "", ""], answer: "" }],
+    questions: [{ ...emptyQuestion }],
   });
 
   const loadQuizzes = () => fetchQuizzes().then(setQuizzes).catch(console.error);
 
-  const updateQuestion = (i: number, patch: any) => {
+  const updateQuestion = (i: number, patch: any) =>
     setQuizForm((prev) => ({
       ...prev,
       questions: prev.questions.map((q: any, idx: number) => (idx === i ? { ...q, ...patch } : q)),
     }));
-  };
 
-  const addQuestion = () => {
-    setQuizForm((prev) => ({
-      ...prev,
-      questions: [
-        ...prev.questions,
-        { type: "MULTIPLE_CHOICE", prompt: "", options: ["", "", "", ""], answer: "" },
-      ],
-    }));
-  };
+  const addQuestion = () =>
+    setQuizForm((prev) => ({ ...prev, questions: [...prev.questions, { ...emptyQuestion }] }));
 
-  const removeQuestion = (i: number) => {
-    setQuizForm((prev) => ({
-      ...prev,
-      questions: prev.questions.filter((_: any, idx: number) => idx !== i),
-    }));
-  };
+  const removeQuestion = (i: number) =>
+    setQuizForm((prev) => ({ ...prev, questions: prev.questions.filter((_: any, idx: number) => idx !== i) }));
 
-  const resetQuizForm = () =>
-    setQuizForm({
-      title: "",
-      lessonId: "",
-      timeLimit: "",
-      lives: "3",
-      xpReward: "50",
-      questions: [{ type: "MULTIPLE_CHOICE", prompt: "", options: ["", "", "", ""], answer: "" }],
+  const addOption = (qi: number) =>
+    updateQuestion(qi, { options: [...quizForm.questions[qi].options, ""] });
+
+  const removeOption = (qi: number, oi: number) =>
+    updateQuestion(qi, { options: quizForm.questions[qi].options.filter((_: string, i2: number) => i2 !== oi) });
+
+  const updatePair = (qi: number, pi: number, side: "left" | "right", value: string) =>
+    updateQuestion(qi, {
+      pairs: quizForm.questions[qi].pairs.map((p: any, i2: number) =>
+        i2 === pi ? { ...p, [side]: value } : p
+      ),
     });
+
+  const addPair = (qi: number) =>
+    updateQuestion(qi, { pairs: [...quizForm.questions[qi].pairs, { left: "", right: "" }] });
+
+  const removePair = (qi: number, pi: number) =>
+    updateQuestion(qi, { pairs: quizForm.questions[qi].pairs.filter((_: any, i2: number) => i2 !== pi) });
 
   const handleQuizSubmit = async () => {
     setQuizSaving(true);
@@ -115,15 +120,14 @@ export default function TeacherMaterialsPage() {
           type: q.type,
           prompt: q.prompt,
           options:
-            q.type === "FILL_BLANK"
-              ? []
-              : q.type === "TRUE_FALSE"
-              ? ["Benar", "Salah"]
-              : q.options.filter((o: string) => o.trim()),
-          answer: q.answer,
+            q.type === "TRUE_FALSE" || q.type === "MULTIPLE_CHOICE" || q.type === "ORDERING"
+              ? q.options.filter((o: string) => o.trim())
+              : [],
+          answer: q.type === "ORDERING" || q.type === "MATCHING" ? "" : q.answer,
+          pairs: q.type === "MATCHING" ? q.pairs : undefined,
         })),
       });
-      resetQuizForm();
+      setQuizForm({ title: "", lessonId: "", timeLimit: "", lives: "3", xpReward: "50", questions: [{ ...emptyQuestion }] });
       await loadQuizzes();
       setQuizOpen(false);
     } catch (e: any) {
@@ -674,6 +678,7 @@ export default function TeacherMaterialsPage() {
                             type: e.target.value,
                             options: e.target.value === "TRUE_FALSE" ? ["Benar", "Salah"] : ["", "", "", ""],
                             answer: "",
+                            pairs: e.target.value === "MATCHING" ? [{ left: "", right: "" }] : q.pairs,
                           })
                         }
                         className="rounded-md border border-border bg-background px-2 py-1 text-xs"
@@ -681,6 +686,9 @@ export default function TeacherMaterialsPage() {
                         <option value="MULTIPLE_CHOICE">Pilihan Ganda</option>
                         <option value="TRUE_FALSE">Benar / Salah</option>
                         <option value="FILL_BLANK">Isian Singkat</option>
+                        <option value="MATCHING">Menjodohkan</option>
+                        <option value="ORDERING">Urutkan</option>
+                        <option value="WORD_SCRAMBLE">Tebak Kata</option>
                       </select>
                       {quizForm.questions.length > 1 && (
                         <button onClick={() => removeQuestion(i)} className="text-muted-foreground hover:text-red-500">
@@ -698,20 +706,99 @@ export default function TeacherMaterialsPage() {
                     className="mb-3 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
                   />
 
-                  {q.type === "FILL_BLANK" ? (
+                  {q.type === "FILL_BLANK" || q.type === "WORD_SCRAMBLE" ? (
                     <div>
-                      <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">Jawaban benar</label>
+                      <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">
+                        {q.type === "WORD_SCRAMBLE" ? "Kata jawaban (huruf akan diacak untuk murid)" : "Jawaban benar"}
+                      </label>
                       <input
                         type="text"
-                        placeholder="Contoh: Jakarta"
+                        placeholder={q.type === "WORD_SCRAMBLE" ? "Contoh: fotosintesis" : "Contoh: Jakarta"}
                         value={q.answer}
                         onChange={(e) => updateQuestion(i, { answer: e.target.value })}
                         className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
                       />
                     </div>
+                  ) : q.type === "ORDERING" ? (
+                    <div className="space-y-2">
+                      <p className="text-xs text-muted-foreground">Tulis item dalam URUTAN BENAR — murid melihat versi acak.</p>
+                      {q.options.map((opt: string, oi: number) => (
+                        <div key={oi} className="flex items-center gap-2">
+                          <span className="w-5 text-xs font-bold text-muted-foreground">{oi + 1}.</span>
+                          <input
+                            type="text"
+                            placeholder={`Item ${oi + 1}`}
+                            value={opt}
+                            onChange={(e) => {
+                              const newOptions = q.options.map((o: string, idx: number) => (idx === oi ? e.target.value : o));
+                              updateQuestion(i, { options: newOptions });
+                            }}
+                            className="flex-1 rounded-lg border border-border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                          />
+                          <button
+                            onClick={() => removeOption(i, oi)}
+                            disabled={q.options.length <= 3}
+                            className="text-muted-foreground hover:text-red-500 disabled:opacity-40"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+                      <button onClick={() => addOption(i)} className="text-xs font-semibold text-primary hover:underline">
+                        + Tambah item
+                      </button>
+                    </div>
+                  ) : q.type === "MATCHING" ? (
+                    <div className="space-y-2">
+                      <p className="text-xs text-muted-foreground">Kiri = istilah, Kanan = pasangan (kanan akan diacak untuk murid).</p>
+                      {q.pairs.map((p: any, pi: number) => (
+                        <div key={pi} className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            placeholder="Kiri (istilah)"
+                            value={p.left}
+                            onChange={(e) => updatePair(i, pi, "left", e.target.value)}
+                            className="flex-1 rounded-lg border border-border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                          />
+                          <input
+                            type="text"
+                            placeholder="Kanan (arti)"
+                            value={p.right}
+                            onChange={(e) => updatePair(i, pi, "right", e.target.value)}
+                            className="flex-1 rounded-lg border border-border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                          />
+                          <button
+                            onClick={() => removePair(i, pi)}
+                            disabled={q.pairs.length <= 2}
+                            className="text-muted-foreground hover:text-red-500 disabled:opacity-40"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+                      <button onClick={() => addPair(i)} className="text-xs font-semibold text-primary hover:underline">
+                        + Tambah pasangan
+                      </button>
+                    </div>
+                  ) : q.type === "TRUE_FALSE" ? (
+                    <div className="space-y-2">
+                      {["Benar", "Salah"].map((opt) => (
+                        <label key={opt} className="flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-background px-3 py-2">
+                          <input
+                            type="radio"
+                            name={`correct-${i}`}
+                            checked={q.answer === opt}
+                            onChange={() => updateQuestion(i, { answer: opt })}
+                            className="h-4 w-4 accent-primary"
+                          />
+                          <span className="text-sm font-medium">{opt}</span>
+                        </label>
+                      ))}
+                      <p className="text-xs text-muted-foreground">Tandai radio = jawaban benar</p>
+                    </div>
                   ) : (
                     <div className="space-y-2">
-                      {(q.type === "TRUE_FALSE" ? ["Benar", "Salah"] : q.options).map((opt: string, oi: number) => (
+                      {q.options.map((opt: string, oi: number) => (
                         <div key={oi} className="flex items-center gap-2">
                           <input
                             type="radio"
@@ -720,25 +807,30 @@ export default function TeacherMaterialsPage() {
                             onChange={() => updateQuestion(i, { answer: opt })}
                             className="h-4 w-4 accent-primary"
                           />
-                          {q.type === "TRUE_FALSE" ? (
-                            <span className="text-sm">{opt}</span>
-                          ) : (
-                            <input
-                              type="text"
-                              placeholder={`Opsi ${oi + 1}`}
-                              value={opt}
-                              onChange={(e) => {
-                                const newOptions = q.options.map((o: string, idx: number) =>
-                                  idx === oi ? e.target.value : o
-                                );
-                                const newAnswer = q.answer === q.options[oi] ? e.target.value : q.answer;
-                                updateQuestion(i, { options: newOptions, answer: newAnswer });
-                              }}
-                              className="flex-1 rounded-lg border border-border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                            />
-                          )}
+                          <span className="w-5 text-xs font-bold text-muted-foreground">{String.fromCharCode(65 + oi)}.</span>
+                          <input
+                            type="text"
+                            placeholder={`Pilihan ${String.fromCharCode(65 + oi)}`}
+                            value={opt}
+                            onChange={(e) => {
+                              const newOptions = q.options.map((o: string, idx: number) => (idx === oi ? e.target.value : o));
+                              const newAnswer = q.answer === q.options[oi] ? e.target.value : q.answer;
+                              updateQuestion(i, { options: newOptions, answer: newAnswer });
+                            }}
+                            className="flex-1 rounded-lg border border-border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                          />
+                          <button
+                            onClick={() => removeOption(i, oi)}
+                            disabled={q.options.length <= 2}
+                            className="text-muted-foreground hover:text-red-500 disabled:opacity-40"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
                         </div>
                       ))}
+                      <button onClick={() => addOption(i)} className="text-xs font-semibold text-primary hover:underline">
+                        + Tambah opsi
+                      </button>
                       <p className="text-xs text-muted-foreground">Tandai radio = jawaban benar</p>
                     </div>
                   )}
