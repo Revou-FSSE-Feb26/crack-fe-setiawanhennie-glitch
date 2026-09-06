@@ -76,9 +76,10 @@ export async function login(data: LoginData) {
 }
 
 export function logout() {
+  document.cookie = 'token=; path=/; max-age=0';
   localStorage.removeItem('token');
   localStorage.removeItem('user');
-  document.cookie = 'token=; path=/; max-age=0'; // Delete cookie
+  window.location.href = '/sign-in';
 }
 
 export function getCurrentUser() {
