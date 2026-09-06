@@ -305,3 +305,57 @@ export async function uploadImage(file: File) {
   }
   return res.json();
 }
+
+export async function createQuiz(data: any) {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/teacher/quizzes`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.message || 'Gagal membuat kuis');
+  }
+  return res.json();
+}
+
+export async function fetchQuizzes(lessonId?: string) {
+  const token = getToken();
+  const url = lessonId
+    ? `${API_URL_BASE}/teacher/quizzes?lessonId=${lessonId}`
+    : `${API_URL_BASE}/teacher/quizzes`;
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) throw new Error('Gagal memuat kuis');
+  return res.json();
+}
+
+export async function deleteQuiz(quizId: string) {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/teacher/quizzes/${quizId}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Gagal menghapus kuis');
+  return res.json();
+}
+
+export async function fetchQuizForPlay(quizId: string) {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/quizzes/${quizId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Gagal memuat kuis');
+  return res.json();
+}
+
+export async function submitQuiz(quizId: string, answers: { questionId: string; answer: string }[]) {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/quizzes/${quizId}/submit`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ answers }),
+  });
+  if (!res.ok) throw new Error('Gagal mengirim jawaban');
+  return res.json();
+}
