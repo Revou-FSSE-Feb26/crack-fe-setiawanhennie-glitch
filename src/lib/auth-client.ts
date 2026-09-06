@@ -289,3 +289,19 @@ export async function deleteLesson(lessonId: string) {
   if (!res.ok) throw new Error('Gagal menghapus pelajaran');
   return res.json();
 }
+
+export async function uploadImage(file: File) {
+  const token = getToken();
+  const form = new FormData();
+  form.append('file', file);
+  const res = await fetch(`${API_URL_BASE}/teacher/upload`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: form,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.message || 'Gagal mengunggah gambar');
+  }
+  return res.json();
+}

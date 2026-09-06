@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/UI/button"
 import { X, Heart, Zap, Check, X as XIcon, Trophy, Link } from "lucide-react"
 import { cn } from "@/lib/utils" 
 

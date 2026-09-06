@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, ChevronDown, ChevronUp, BookOpen, X, Pencil, Trash2, FileUp } from "lucide-react";
+import { Plus, ChevronDown, ChevronUp, BookOpen, X, Pencil, Trash2, FileUp, Camera } from "lucide-react";
 import {
   fetchTeacherMaterials,
   createCourse,
@@ -10,9 +10,10 @@ import {
   fetchLesson,
   updateLesson,
   deleteLesson,
+  uploadImage,
 } from "@/lib/auth-client";
 
-const EMOJIS = ["🔢", "", "📚", "🌍", "🎨", "", "🎵", "⚽"];
+const EMOJIS = ["🔢", "🔬", "📚", "🌍", "🎨", "💻", "🎵", "⚽"];
 const COLORS = [
   "bg-blue-500/10",
   "bg-emerald-500/10",
@@ -31,6 +32,7 @@ export default function TeacherMaterialsPage() {
   const [mode, setMode] = useState<"course" | "lesson">("course");
   const [saving, setSaving] = useState(false);
   const [extracting, setExtracting] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [error, setError] = useState("");
   const [courseForm, setCourseForm] = useState({
     title: "",
@@ -100,6 +102,26 @@ export default function TeacherMaterialsPage() {
       setError(err.message);
     } finally {
       setExtracting(false);
+      e.target.value = "";
+    }
+  };
+
+    const handleImage = async (e: React.ChangeEvent<HTMLInputElement>, target: "create" | "edit") => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingImage(true);
+    try {
+      const { url } = await uploadImage(file);
+      const markdown = `\n![${file.name.replace(/\.[^.]+$/, "")}](${url})\n`;
+      if (target === "create") {
+        setLessonForm((prev) => ({ ...prev, content: prev.content + markdown }));
+      } else {
+        setEditForm((prev) => ({ ...prev, content: prev.content + markdown }));
+      }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setUploadingImage(false);
       e.target.value = "";
     }
   };
@@ -356,6 +378,22 @@ export default function TeacherMaterialsPage() {
                         disabled={extracting}
                       />
                     </label>
+
+                    <label
+                      className={`flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-muted ${
+                        uploadingImage ? "pointer-events-none opacity-60" : ""
+                      }`}
+                    >
+                      <Camera className="h-3.5 w-3.5" />
+                      {uploadingImage ? "Mengunggah..." : "Sisipkan Gambar"}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handleImage(e, "create")}
+                        disabled={uploadingImage}
+                      />
+                    </label>
                     <span className="text-xs text-muted-foreground">Teks diisi otomatis & tetap bisa diedit</span>
                   </div>
                 </div>
@@ -421,6 +459,25 @@ export default function TeacherMaterialsPage() {
                       className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
                     />
                   </div>
+                </div>
+
+                <div className="mt-2 flex items-center gap-2">
+                  <label
+                    className={`flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-muted ${
+                      uploadingImage ? "pointer-events-none opacity-60" : ""
+                    }`}
+                  >
+                    <Camera className="h-3.5 w-3.5" />
+                    {uploadingImage ? "Mengunggah..." : "Sisipkan Gambar"}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => handleImage(e, "edit")}
+                      disabled={uploadingImage}
+                    />
+                  </label>
+                  <span className="text-xs text-muted-foreground">Gambar disisipkan ke isi materi</span>
                 </div>
 
                 <div className="mt-6 flex items-center justify-between">

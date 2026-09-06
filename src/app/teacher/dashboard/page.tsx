@@ -140,20 +140,6 @@ export default function TeacherDashboardPage() {
               )) ?? <p className="text-sm text-muted-foreground">Memuat...</p>}
             </div>
           </div>
-
-          {/* Quick Actions */}
-          <div className="rounded-xl bg-gradient-to-br from-primary to-purple-600 p-6 text-white shadow-sm">
-            <h3 className="font-heading text-lg font-bold">Aksi Cepat</h3>
-            <p className="mt-1 text-sm text-white/80">Buat materi baru atau undang murid.</p>
-            <button className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-white/20 px-4 py-2.5 text-sm font-bold transition-colors hover:bg-white/30">
-              <Plus className="h-4 w-4" />
-              Buat Kuis Baru
-            </button>
-            <button className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-bold text-primary transition-colors hover:bg-white/90">
-              <UserPlus className="h-4 w-4" />
-              Tambah Murid
-            </button>
-          </div>
         </div>
       </div>
     </div>
