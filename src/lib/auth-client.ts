@@ -49,29 +49,24 @@ export async function verifyEmail(data: VerifyData) {
   return res.json();
 }
 
-export async function login(data: LoginData) {
-  const res = await fetch(`${API_URL}/login`, {
+export async function login(
+  credentials: { email: string; password: string },
+  remember = true,
+) {
+  const res = await fetch(`${API_URL_BASE}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
+    body: JSON.stringify(credentials),
   });
-  
   if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || 'Login failed');
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.message || 'Gagal masuk');
   }
-  
   const result = await res.json();
-  
-  // Store in localStorage (for client-side checks)
-  if (result.access_token) {
-    localStorage.setItem('token', result.access_token);
-    localStorage.setItem('user', JSON.stringify(result.user));
-    
-    // ALSO set as HTTP-only cookie (for middleware/server checks)
-    document.cookie = `token=${result.access_token}; path=/; max-age=604800; SameSite=Strict`;
-  }
-  
+
+  document.cookie = `token=${result.access_token}; path=/; ${remember ? 'max-age=604800;' : ''} SameSite=Lax`;
+  localStorage.setItem('token', result.access_token);
+  localStorage.setItem('user', JSON.stringify(result.user));
   return result;
 }
 
@@ -397,5 +392,16 @@ export async function completeLesson(lessonId: string) {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!res.ok) throw new Error('Gagal menyelesaikan pelajaran');
+  return res.json();
+}
+
+export async function updateCourseAssignments(courseId: string, classes: string[]) {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/teacher/courses/${courseId}/assignments`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ classes }),
+  });
+  if (!res.ok) throw new Error('Gagal mengatur kelas tujuan');
   return res.json();
 }

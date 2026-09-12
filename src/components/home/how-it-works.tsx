@@ -5,7 +5,7 @@ import { CheckCircle2, BookOpen, Zap, type LucideIcon } from "lucide-react";
 
 const STEPS = [
   { step: "01", title: "Daftar & verifikasi", desc: "Buat akun gratis dan verifikasi emailmu dalam 30 detik.", icon: CheckCircle2 },
-  { step: "02", title: "Pilih kursus", desc: "Jelajahi mata pelajaran dan mulai dari level yang sesuai.", icon: BookOpen },
+  { step: "02", title: "Ikuti kursus kelasmu", desc: "Guru menugaskan kursus & kuis ke kelasmu — tinggal buka dan mulai belajar.", icon: BookOpen },
   { step: "03", title: "Belajar & raih XP", desc: "Selesaikan pelajaran, kumpulkan XP, dan naik level!", icon: Zap },
 ];
 

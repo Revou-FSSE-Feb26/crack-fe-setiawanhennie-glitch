@@ -21,7 +21,6 @@ import XpScrollBar from "@/components/home/xp-scroll-bar"
 import Typewriter from "@/components/home/typewriter"
 import ActivityTicker from "@/components/home/activity-ticker"
 import MiniQuizDemo from "@/components/home/mini-quiz-demo"
-import BadgeWall from "@/components/home/badge-wall"
 import HowItWorks from "@/components/home/how-it-works"
 
 export const metadata = {
@@ -179,7 +178,7 @@ export default function HomePage() {
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {features.map((f, index) => (
               <Reveal key={f.title} delay={index * 120}>
-                <div className="rounded-xl bg-card p-6 shadow-sm ring-1 ring-border transition-all hover:-translate-y-1 hover:shadow-md">
+                <div className="h-full rounded-xl bg-card p-6 shadow-sm ring-1 ring-border transition-all hover:-translate-y-1 hover:shadow-md">
                   <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
                     <f.icon className="h-6 w-6" />
                   </div>
@@ -191,7 +190,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-      <BadgeWall />
 
       {/* For Teachers */}
       <Reveal direction="left">

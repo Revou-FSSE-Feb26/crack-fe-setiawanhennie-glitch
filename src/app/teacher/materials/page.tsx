@@ -1,7 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, ChevronDown, ChevronUp, BookOpen, X, Pencil, Trash2, FileUp, Camera, Gamepad2, Heart, Timer } from "lucide-react";
+import {
+  Plus,
+  ChevronDown,
+  ChevronUp,
+  BookOpen,
+  X,
+  Pencil,
+  Trash2,
+  FileUp,
+  Camera,
+  Gamepad2,
+  Heart,
+  Timer,
+  Users,
+} from "lucide-react";
 import {
   fetchTeacherMaterials,
   createCourse,
@@ -14,9 +28,11 @@ import {
   createQuiz,
   fetchQuizzes,
   deleteQuiz,
+  fetchTeacherClasses,
+  updateCourseAssignments,
 } from "@/lib/auth-client";
 
-const EMOJIS = ["🔢", "🔬", "📚", "🌍", "🎨", "💻", "🎵", "⚽"];
+const EMOJIS = ["🔢", "🔬", "📚", "🌍", "", "💻", "🎵", "⚽"];
 const COLORS = [
   "bg-blue-500/10",
   "bg-emerald-500/10",
@@ -42,7 +58,11 @@ export default function TeacherMaterialsPage() {
     description: "",
     emoji: "📚",
     color: COLORS[0],
+    classes: [] as string[],
   });
+  const [schoolClasses, setSchoolClasses] = useState<string[]>([]);
+  const [assignOpen, setAssignOpen] = useState<null | { courseId: string; classes: string[] }>(null);
+  const [assignSaving, setAssignSaving] = useState(false);
   const [lessonForm, setLessonForm] = useState({ courseId: "", title: "", content: "" });
 
   // Edit modal state
@@ -51,6 +71,7 @@ export default function TeacherMaterialsPage() {
   const [editSaving, setEditSaving] = useState(false);
   const [editError, setEditError] = useState("");
   const [editForm, setEditForm] = useState({ id: "", title: "", content: "" });
+
   // Quiz builder state
   const [quizzes, setQuizzes] = useState<any[]>([]);
   const [quizOpen, setQuizOpen] = useState(false);
@@ -72,8 +93,18 @@ export default function TeacherMaterialsPage() {
     questions: [{ ...emptyQuestion }],
   });
 
+  const load = () => fetchTeacherMaterials().then(setCourses).catch(console.error);
   const loadQuizzes = () => fetchQuizzes().then(setQuizzes).catch(console.error);
 
+  useEffect(() => {
+    load();
+    loadQuizzes();
+    fetchTeacherClasses()
+      .then((list) => setSchoolClasses(list.map((c: any) => c.className)))
+      .catch(console.error);
+  }, []);
+
+  /* ---------- Quiz builder helpers ---------- */
   const updateQuestion = (i: number, patch: any) =>
     setQuizForm((prev) => ({
       ...prev,
@@ -84,13 +115,18 @@ export default function TeacherMaterialsPage() {
     setQuizForm((prev) => ({ ...prev, questions: [...prev.questions, { ...emptyQuestion }] }));
 
   const removeQuestion = (i: number) =>
-    setQuizForm((prev) => ({ ...prev, questions: prev.questions.filter((_: any, idx: number) => idx !== i) }));
+    setQuizForm((prev) => ({
+      ...prev,
+      questions: prev.questions.filter((_: any, idx: number) => idx !== i),
+    }));
 
   const addOption = (qi: number) =>
     updateQuestion(qi, { options: [...quizForm.questions[qi].options, ""] });
 
   const removeOption = (qi: number, oi: number) =>
-    updateQuestion(qi, { options: quizForm.questions[qi].options.filter((_: string, i2: number) => i2 !== oi) });
+    updateQuestion(qi, {
+      options: quizForm.questions[qi].options.filter((_: string, i2: number) => i2 !== oi),
+    });
 
   const updatePair = (qi: number, pi: number, side: "left" | "right", value: string) =>
     updateQuestion(qi, {
@@ -103,7 +139,9 @@ export default function TeacherMaterialsPage() {
     updateQuestion(qi, { pairs: [...quizForm.questions[qi].pairs, { left: "", right: "" }] });
 
   const removePair = (qi: number, pi: number) =>
-    updateQuestion(qi, { pairs: quizForm.questions[qi].pairs.filter((_: any, i2: number) => i2 !== pi) });
+    updateQuestion(qi, {
+      pairs: quizForm.questions[qi].pairs.filter((_: any, i2: number) => i2 !== pi),
+    });
 
   const handleQuizSubmit = async () => {
     setQuizSaving(true);
@@ -127,7 +165,14 @@ export default function TeacherMaterialsPage() {
           pairs: q.type === "MATCHING" ? q.pairs : undefined,
         })),
       });
-      setQuizForm({ title: "", lessonId: "", timeLimit: "", lives: "3", xpReward: "50", questions: [{ ...emptyQuestion }] });
+      setQuizForm({
+        title: "",
+        lessonId: "",
+        timeLimit: "",
+        lives: "3",
+        xpReward: "50",
+        questions: [{ ...emptyQuestion }],
+      });
       await loadQuizzes();
       setQuizOpen(false);
     } catch (e: any) {
@@ -147,13 +192,6 @@ export default function TeacherMaterialsPage() {
     }
   };
 
-  const load = () => fetchTeacherMaterials().then(setCourses).catch(console.error);
-
-  useEffect(() => {
-    load();
-    loadQuizzes();
-  }, []);
-
   /* ---------- Create ---------- */
   const handleSubmit = async () => {
     setSaving(true);
@@ -164,7 +202,7 @@ export default function TeacherMaterialsPage() {
           throw new Error("Judul dan deskripsi wajib diisi");
         }
         await createCourse(courseForm);
-        setCourseForm({ title: "", description: "", emoji: "📚", color: COLORS[0] });
+        setCourseForm({ title: "", description: "", emoji: "📚", color: COLORS[0], classes: [] });
       } else {
         if (!lessonForm.courseId || !lessonForm.title.trim() || !lessonForm.content.trim()) {
           throw new Error("Semua field wajib diisi");
@@ -184,7 +222,7 @@ export default function TeacherMaterialsPage() {
     }
   };
 
-  /* ---------- Document upload ---------- */
+  /* ---------- Document & image upload ---------- */
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -205,7 +243,7 @@ export default function TeacherMaterialsPage() {
     }
   };
 
-    const handleImage = async (e: React.ChangeEvent<HTMLInputElement>, target: "create" | "edit") => {
+  const handleImage = async (e: React.ChangeEvent<HTMLInputElement>, target: "create" | "edit") => {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploadingImage(true);
@@ -225,7 +263,7 @@ export default function TeacherMaterialsPage() {
     }
   };
 
-  /* ---------- Edit / Delete ---------- */
+  /* ---------- Edit / Delete lesson ---------- */
   const openLesson = async (id: string) => {
     setEditOpen(true);
     setEditLoading(true);
@@ -274,6 +312,7 @@ export default function TeacherMaterialsPage() {
 
   return (
     <div className="mx-auto max-w-6xl">
+      {/* Header */}
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="font-heading text-3xl font-extrabold">Materi & Kuis</h1>
@@ -305,12 +344,26 @@ export default function TeacherMaterialsPage() {
               <div className={`flex h-12 w-12 items-center justify-center rounded-xl text-2xl ${course.color}`}>
                 {course.emoji}
               </div>
-              <button
-                onClick={() => setExpanded(expanded === course.id ? null : course.id)}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                {expanded === course.id ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() =>
+                    setAssignOpen({
+                      courseId: course.id,
+                      classes: (course.assignments || []).map((a: any) => a.className),
+                    })
+                  }
+                  title="Atur kelas tujuan"
+                  className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                >
+                  <Users className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => setExpanded(expanded === course.id ? null : course.id)}
+                  className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                >
+                  {expanded === course.id ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
 
             <p className="mt-3 font-heading text-lg font-extrabold">{course.title}</p>
@@ -318,6 +371,12 @@ export default function TeacherMaterialsPage() {
             <p className="mt-3 flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
               <BookOpen className="h-3.5 w-3.5" />
               {course.lessons.length} pelajaran
+            </p>
+            <p className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+              <Users className="h-3.5 w-3.5" />
+              {course.assignments?.length
+                ? course.assignments.map((a: any) => `Kelas ${a.className}`).join(", ")
+                : "Semua kelas"}
             </p>
 
             {expanded === course.id && (
@@ -345,7 +404,7 @@ export default function TeacherMaterialsPage() {
         ))}
       </div>
 
-            {/* Quiz list */}
+      {/* Quiz list */}
       <div className="mt-10">
         <h2 className="mb-4 flex items-center gap-2 font-heading text-xl font-extrabold">
           <Gamepad2 className="h-5 w-5 text-primary" />
@@ -482,6 +541,36 @@ export default function TeacherMaterialsPage() {
                     ))}
                   </div>
                 </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-semibold">Kelas tujuan</label>
+                  <div className="flex flex-wrap gap-2">
+                    {schoolClasses.map((cls) => {
+                      const on = courseForm.classes.includes(cls);
+                      return (
+                        <button
+                          key={cls}
+                          type="button"
+                          onClick={() =>
+                            setCourseForm({
+                              ...courseForm,
+                              classes: on
+                                ? courseForm.classes.filter((c) => c !== cls)
+                                : [...courseForm.classes, cls],
+                            })
+                          }
+                          className={`rounded-full px-3 py-1.5 text-xs font-bold transition-all ${
+                            on ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70"
+                          }`}
+                        >
+                          Kelas {cls}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="mt-1.5 text-xs text-muted-foreground">
+                    Tidak pilih apa-apa = kursus untuk seluruh sekolah.
+                  </p>
+                </div>
               </div>
             ) : (
               <div className="space-y-4">
@@ -535,7 +624,6 @@ export default function TeacherMaterialsPage() {
                         disabled={extracting}
                       />
                     </label>
-
                     <label
                       className={`flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-muted ${
                         uploadingImage ? "pointer-events-none opacity-60" : ""
@@ -551,8 +639,8 @@ export default function TeacherMaterialsPage() {
                         disabled={uploadingImage}
                       />
                     </label>
-                    <span className="text-xs text-muted-foreground">Teks diisi otomatis & tetap bisa diedit</span>
                   </div>
+                  <p className="mt-1.5 text-xs text-muted-foreground">Teks diisi otomatis & tetap bisa diedit</p>
                 </div>
               </div>
             )}
@@ -576,7 +664,7 @@ export default function TeacherMaterialsPage() {
           </div>
         </div>
       )}
-      
+
       {/* ================= QUIZ BUILDER MODAL ================= */}
       {quizOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -605,7 +693,6 @@ export default function TeacherMaterialsPage() {
                   className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
                 />
               </div>
-
               <div>
                 <label className="mb-1.5 block text-sm font-semibold">Pelajaran (opsional)</label>
                 <select
@@ -623,7 +710,6 @@ export default function TeacherMaterialsPage() {
                   )}
                 </select>
               </div>
-
               <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="mb-1.5 flex items-center gap-1 text-sm font-semibold">
@@ -906,7 +992,6 @@ export default function TeacherMaterialsPage() {
                     />
                   </div>
                 </div>
-
                 <div className="mt-2 flex items-center gap-2">
                   <label
                     className={`flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-muted ${
@@ -925,7 +1010,6 @@ export default function TeacherMaterialsPage() {
                   </label>
                   <span className="text-xs text-muted-foreground">Gambar disisipkan ke isi materi</span>
                 </div>
-
                 <div className="mt-6 flex items-center justify-between">
                   <button
                     onClick={handleEditDelete}
@@ -953,6 +1037,64 @@ export default function TeacherMaterialsPage() {
                 </div>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ================= ASSIGN CLASSES MODAL ================= */}
+      {assignOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setAssignOpen(null)} />
+          <div className="relative w-full max-w-sm rounded-xl bg-card p-6 shadow-xl ring-1 ring-border">
+            <h2 className="mb-4 font-heading text-lg font-extrabold">Atur kelas tujuan</h2>
+            <div className="flex flex-wrap gap-2">
+              {schoolClasses.map((cls) => {
+                const on = assignOpen.classes.includes(cls);
+                return (
+                  <button
+                    key={cls}
+                    onClick={() =>
+                      setAssignOpen({
+                        ...assignOpen,
+                        classes: on ? assignOpen.classes.filter((c) => c !== cls) : [...assignOpen.classes, cls],
+                      })
+                    }
+                    className={`rounded-full px-3 py-1.5 text-xs font-bold transition-all ${
+                      on ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70"
+                    }`}
+                  >
+                    Kelas {cls}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground">Kosong = seluruh sekolah bisa melihat kursus ini.</p>
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                onClick={() => setAssignOpen(null)}
+                className="rounded-lg px-4 py-2 text-sm font-semibold text-muted-foreground hover:bg-muted"
+              >
+                Batal
+              </button>
+              <button
+                disabled={assignSaving}
+                onClick={async () => {
+                  setAssignSaving(true);
+                  try {
+                    await updateCourseAssignments(assignOpen.courseId, assignOpen.classes);
+                    setAssignOpen(null);
+                    await load();
+                  } catch (e: any) {
+                    alert(e.message);
+                  } finally {
+                    setAssignSaving(false);
+                  }
+                }}
+                className="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              >
+                {assignSaving ? "Menyimpan..." : "Simpan"}
+              </button>
+            </div>
           </div>
         </div>
       )}
