@@ -63,10 +63,8 @@ export default function StudentLessonPage() {
   }, []);
 
   const q = quiz?.questions?.[step];
-
-  // Scrambled letters for WORD_SCRAMBLE (stable per question)
   const scrambled = useMemo(
-    () => (q?.type === "WORD_SCRAMBLE" ? shuffle(q.answer.split("")) : []),
+    () => (q?.type === "WORD_SCRAMBLE" ? (q.scrambledLetters ?? []) : []),
     [q?.id]
   );
   const rightsPool = useMemo<string[]>(
@@ -354,7 +352,7 @@ export default function StudentLessonPage() {
               {input || "_ _ _ _ _"}
             </div>
             <div className="flex flex-wrap justify-center gap-2">
-              {scrambled.map((letter, i) => {
+              {scrambled.map((letter: string, i: number) => {
                 const used = (input ?? "").length > 0 && false; // tiles are re-clickable pool
                 return (
                   <button

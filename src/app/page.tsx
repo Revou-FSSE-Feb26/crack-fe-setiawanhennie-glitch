@@ -123,7 +123,7 @@ export default function HomePage() {
               {/* Image container with circular mask */}
                   <img
                     src="/output-onlinegiftools.gif"
-                    alt="Siswa bahagia belajar dengan NusaSkillz"
+                    alt="Ilustrasi siswa belajar"
                     className="h-full w-full object-cover"
                   />
 
