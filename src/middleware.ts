@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const publicRoutes = ['/', '/sign-in', '/sign-up', '/verify'];
+const publicRoutes = ['/', '/sign-in', '/sign-up', '/verify', '/forgot-password', '/reset-password'];
 
 function getRoleFromToken(token: string): string | null {
   try {
