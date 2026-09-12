@@ -36,7 +36,7 @@ export default function LoginPage() {
       } else if (result.user.role === "ADMIN") {
         router.push("/admin/dashboard");
       } else {
-        router.push("/dashboard");
+        router.push("/student/dashboard");
       }
     } catch (err: any) {
       setError(err.message || "Gagal masuk. Periksa email dan password Anda.");

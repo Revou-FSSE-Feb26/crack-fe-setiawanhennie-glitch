@@ -21,18 +21,22 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
 
   return (
     <main className="min-h-svh bg-background">
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-border bg-card/80 backdrop-blur-md sticky top-0 z-50">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <Link href="/student/dashboard" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+          <Link href="/student/dashboard" className="group flex items-center gap-2">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-purple-600 text-primary-foreground shadow-md transition-transform group-hover:scale-110">
               <GraduationCap className="h-5 w-5" />
             </div>
-            <span className="font-heading text-xl font-extrabold">NusaSkillz</span>
+            <span className="font-heading text-xl font-extrabold transition-colors group-hover:text-primary">
+              NusaSkillz
+            </span>
           </Link>
           <div className="flex items-center gap-4">
             <div className="hidden sm:flex items-center gap-2 text-sm font-medium">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary font-bold">
-                {name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
+              <div className="relative">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary font-bold">
+                  {name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
+                </div>
               </div>
               <span>{name}</span>
             </div>

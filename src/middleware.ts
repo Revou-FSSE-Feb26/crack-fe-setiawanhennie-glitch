@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const publicRoutes = ['/', '/sign-in', '/register', '/verify'];
+const publicRoutes = ['/', '/sign-in', '/sign-up', '/verify'];
 
 function getRoleFromToken(token: string): string | null {
   try {
     const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString());
+    if (payload.exp && payload.exp * 1000 < Date.now()) return null;
     return payload.role ?? null;
   } catch {
     return null;
@@ -14,7 +15,6 @@ function getRoleFromToken(token: string): string | null {
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get('token')?.value;
-
   const legacy: Record<string, string> = {
     '/dashboard': '/student/dashboard',
     '/courses': '/student/courses',
@@ -27,21 +27,25 @@ export function middleware(request: NextRequest) {
   }
 
   const isPublic = publicRoutes.includes(pathname);
+  const role = token ? getRoleFromToken(token) : null;
 
-  if (!token) {
-    if (isPublic) return NextResponse.next();
-    const url = request.nextUrl.clone();
-    url.pathname = '/sign-in';
-    return NextResponse.redirect(url);
+  if (isPublic) {
+    if (role && pathname !== '/') {
+      const url = request.nextUrl.clone();
+      url.pathname =
+        role === 'ADMIN'
+          ? '/admin/dashboard'
+          : role === 'TEACHER'
+          ? '/teacher/dashboard'
+          : '/student/dashboard';
+      return NextResponse.redirect(url);
+    }
+    return NextResponse.next();
   }
 
-  const role = getRoleFromToken(token);
-
-  // Logged-in user hitting sign-in/register → send home
-  if (isPublic && pathname !== '/' && role) {
+  if (!role) {
     const url = request.nextUrl.clone();
-    url.pathname =
-      role === 'ADMIN' ? '/admin/dashboard' : role === 'TEACHER' ? '/teacher/dashboard' : '/student/dashboard';
+    url.pathname = '/sign-in';
     return NextResponse.redirect(url);
   }
 
@@ -53,7 +57,7 @@ export function middleware(request: NextRequest) {
 
   if (pathname.startsWith('/teacher') && role !== 'TEACHER' && role !== 'ADMIN') {
     const url = request.nextUrl.clone();
-    url.pathname = role === 'ADMIN' ? '/admin/dashboard' : '/student/dashboard';
+    url.pathname = '/student/dashboard';
     return NextResponse.redirect(url);
   }
 

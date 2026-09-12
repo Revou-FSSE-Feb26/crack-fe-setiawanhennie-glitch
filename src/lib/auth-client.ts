@@ -251,7 +251,7 @@ export async function extractDocument(file: File) {
   form.append('file', file);
   const res = await fetch(`${API_URL_BASE}/teacher/extract`, {
     method: 'POST',
-    headers: { Authorization: `Bearer ${token}` }, // ⚠️ NO Content-Type — FormData sets it
+    headers: { Authorization: `Bearer ${token}` },
     body: form,
   });
   if (!res.ok) {
@@ -376,5 +376,26 @@ export async function fetchStudentLesson(lessonId: string) {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!res.ok) throw new Error('Gagal memuat pelajaran');
+  return res.json();
+}
+
+export async function checkQuizAnswer(quizId: string, questionId: string, answer: string) {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/quizzes/${quizId}/check`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ questionId, answer }),
+  });
+  if (!res.ok) throw new Error('Gagal memeriksa jawaban');
+  return res.json();
+}
+
+export async function completeLesson(lessonId: string) {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/lessons/${lessonId}/complete`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Gagal menyelesaikan pelajaran');
   return res.json();
 }
