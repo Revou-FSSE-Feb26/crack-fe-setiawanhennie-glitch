@@ -17,6 +17,12 @@ import {
 import DarkModeToggle from "@/components/UI/darkmodetoggle"
 import Reveal from "@/components/UI/reveal"
 import InquiryForm from "@/components/inquiry-form"
+import XpScrollBar from "@/components/home/xp-scroll-bar"
+import Typewriter from "@/components/home/typewriter"
+import ActivityTicker from "@/components/home/activity-ticker"
+import MiniQuizDemo from "@/components/home/mini-quiz-demo"
+import BadgeWall from "@/components/home/badge-wall"
+import HowItWorks from "@/components/home/how-it-works"
 
 export const metadata = {
   title: "NusaSkillz — Belajar ala Game untuk Pelajar Indonesia",
@@ -39,6 +45,7 @@ export default function HomePage() {
 
   return (
     <main className="min-h-svh bg-background">
+      <XpScrollBar />
       {/* Nav */}
       <header className="mx-auto flex items-center justify-between px-4 py-5 sticky top-0 z-50 bg-background/90 backdrop-blur-sm">
         <Link href="/" className="flex items-center gap-2">
@@ -92,7 +99,7 @@ export default function HomePage() {
           <div className="text-left">
             <h1 className="text-balance font-heading text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
               Jadikan belajar sebuah{" "}
-              <span className="text-primary">petualangan seru!</span>
+              <div><Typewriter /></div>
             </h1>
             
             <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground">
@@ -156,29 +163,11 @@ export default function HomePage() {
           </Reveal>
         </div>
       </section>
+      <ActivityTicker />
 
       {/* How It Works */}
-      <section className="scroll-mt-24 flex min-h-[calc(100svh-6rem)] items-center py-16" id="cara-kerja">
-        <div className="mx-auto max-w-6xl px-4">
-          <div className="mb-12 text-center">
-            <h2 className="font-heading text-3xl font-extrabold md:text-4xl">Mulai dalam 3 langkah mudah!</h2>
-            <p className="mt-2 text-muted-foreground">Tidak perlu setup rumit. Langsung belajar dalam hitungan menit.</p>
-          </div>
-          <div className="relative grid gap-6 md:grid-cols-3">
-            <div className="absolute left-0 right-0 top-9 hidden h-0 border-t-2 border-dashed border-border md:block" aria-hidden />
-            {howItWorks.map((item) => (
-              <div key={item.step} className="relative flex flex-col items-center text-center md:items-start md:text-left">
-                <div className="relative z-10 flex h-[72px] w-[72px] items-center justify-center rounded-full border-2 border-primary bg-card">
-                  <span className="font-heading text-lg font-extrabold text-primary">{item.step}</span>
-                </div>
-                <item.icon className="mt-4 h-5 w-5 text-accent-foreground" />
-                <h3 className="mt-2 font-heading text-lg font-bold">{item.title}</h3>
-                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <HowItWorks />
+      <MiniQuizDemo />
 
       {/* Features — the expanded version of the hero trio */}
       <section className="bg-secondary/40 py-20 scroll-mt-24" id="fitur">
@@ -202,6 +191,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      <BadgeWall />
 
       {/* For Teachers */}
       <Reveal direction="left">

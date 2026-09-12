@@ -141,6 +141,7 @@ html {
   }
 }
 
+/* SIGN-IN PAGE */
 /* Base Pixel Pattern*/
 .bg-pixel-pattern {
   position: relative;
@@ -208,6 +209,7 @@ html {
   }
 }
 
+/* HOME PAGE */
 /* Gentle floating for hero badges */
 @keyframes float-badge {
   0%, 100% { transform: translateY(0); }
@@ -230,4 +232,54 @@ html {
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
+}
+
+/* Activity ticker marquee */
+.ticker-track {
+  animation: ticker 32s linear infinite;
+}
+.ticker:hover .ticker-track {
+  animation-play-state: paused;
+}
+@keyframes ticker {
+  to { transform: translateX(-50%); }
+}
+
+/* Step circle pop */
+@keyframes pop-in {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Pulse ring around active step */
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4); }
+  70% { box-shadow: 0 0 0 16px hsl(var(--primary) / 0); }
+  100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0); }
+}
+
+/* Dashed line draws left-to-right */
+@keyframes draw-line {
+  from { stroke-dashoffset: 1000; }
+  to { stroke-dashoffset: 0; }
+}
+
+/* Icon wiggle on hover */
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-8deg); }
+  75% { transform: rotate(8deg); }
+}
+
+.animate-pop-in {
+  animation: pop-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 2s infinite;
+}
+
+.hover-wiggle:hover .step-icon {
+  animation: wiggle 0.5s ease-in-out;
 }
