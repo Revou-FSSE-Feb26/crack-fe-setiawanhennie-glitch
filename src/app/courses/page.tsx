@@ -30,7 +30,6 @@ export default async function CoursesPage() {
 
   const user = { name: "Budi Santoso" }
 
-  // 1. THE RETURN STATEMENT WAS MISSING HERE!
   return (
     <main className="min-h-svh bg-background">
       {/* Navbar */}

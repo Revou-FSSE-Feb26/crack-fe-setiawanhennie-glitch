@@ -360,3 +360,21 @@ export async function submitQuiz(quizId: string, answers: { questionId: string; 
   if (!res.ok) throw new Error('Gagal mengirim jawaban');
   return res.json();
 }
+
+export async function fetchStudentStats() {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/student/stats`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Gagal memuat statistik');
+  return res.json();
+}
+
+export async function fetchStudentLesson(lessonId: string) {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/lessons/${lessonId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Gagal memuat pelajaran');
+  return res.json();
+}

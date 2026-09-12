@@ -134,8 +134,8 @@ export default function HomePage() {
                     <Star className="h-4 w-4 fill-yellow-500" />
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground">Rating</p>
-                    <p className="font-heading text-sm font-bold">4.9/5.0</p>
+                    <p className="text-xs text-muted-foreground">Pencapaian</p>
+                    <p className="font-heading text-sm font-bold">Sangat Baik!</p>
                   </div>
                 </div>
               </div>
@@ -148,7 +148,7 @@ export default function HomePage() {
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">XP Dikumpulkan</p>
-                    <p className="font-heading text-sm font-bold text-primary">10,000+ XP</p>
+                    <p className="font-heading text-sm font-bold text-primary">10,000+ XP!</p>
                   </div>
                 </div>
               </div>
