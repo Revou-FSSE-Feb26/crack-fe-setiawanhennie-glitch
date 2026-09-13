@@ -6,8 +6,8 @@ import Input from "@/components/UI/input";
 import Card from "@/components/UI/card";
 import DarkModeToggle from "@/components/UI/darkmodetoggle";
 import { useState } from "react";
-import { User, Mail, School, GraduationCap, Lock, AlertCircle, CheckCircle, CircleArrowLeft } from "lucide-react";
-import { register } from "@/lib/auth-client";
+import { User, Mail, CheckCircle2, GraduationCap, Lock, AlertCircle, CheckCircle, CircleArrowLeft } from "lucide-react";
+import { lookupSchoolByCode, register } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { verifyEmail } from "@/lib/auth-client";
 
@@ -104,6 +104,27 @@ export default function RegisterPage() {
     }
   };
 
+  const [schoolCode, setSchoolCode] = useState("");
+  const [schoolInfo, setSchoolInfo] = useState<null | { name: string; address: string | null; classList: string[] }>(null);
+  const [lookingUp, setLookingUp] = useState(false);
+  const [codeError, setCodeError] = useState("");
+
+  const handleLookup = async () => {
+    if (!schoolCode.trim()) return;
+    setLookingUp(true);
+    setCodeError("");
+    setSchoolInfo(null);
+    try {
+      const info = await lookupSchoolByCode(schoolCode);
+      setSchoolInfo(info);
+      setFormData({ ...formData, school: info.name, className: "" });
+    } catch (e: any) {
+      setCodeError(e.message);
+    } finally {
+      setLookingUp(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-pixel-pattern relative">
         <div className="absolute inset-0 bg-background/80 backdrop-blur-[1px] pointer-events-none"></div>
@@ -182,28 +203,64 @@ export default function RegisterPage() {
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Input 
-                  label="Asal Sekolah" 
-                  type="text" 
-                  placeholder="SMA 1 Jakarta" 
-                  required 
-                  leftIcon={<School className="w-4 h-4" />}
-                  value={formData.school}
-                  onChange={(e) => setFormData({ ...formData, school: e.target.value })}
+            {/* Kode Sekolah */}
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold">
+                Kode Sekolah <span className="text-red-500">*</span>
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Contoh: SMA1-8F2K"
+                  value={schoolCode}
+                  onChange={(e) => setSchoolCode(e.target.value.toUpperCase())}
+                  className="flex-1 rounded-lg border border-border bg-background px-3 py-2 font-mono text-sm uppercase focus:outline-none focus:ring-2 focus:ring-primary/50"
                 />
-                {role === "STUDENT" && (
-                <Input 
-                  label="Kelas" 
-                  type="text" 
-                  placeholder="Kelas 12" 
-                  required 
-                  leftIcon={<GraduationCap className="w-4 h-4" />}
-                  value={formData.className}
+                <button
+                  type="button"
+                  onClick={handleLookup}
+                  disabled={lookingUp}
+                  className="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+                >
+                  {lookingUp ? "..." : "Gabung"}
+                </button>
+              </div>
+              {codeError && <p className="mt-1.5 text-xs font-medium text-red-600">{codeError}</p>}
+              {schoolInfo && (
+                <div className="mt-2 flex items-center gap-2 rounded-lg bg-emerald-500/10 p-3">
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-bold text-emerald-700">{schoolInfo.name}</p>
+                    {schoolInfo.address && (
+                      <p className="truncate text-xs text-emerald-600">{schoolInfo.address}</p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Kelas — dropdown from the school's class list (students only) */}
+            {role !== "TEACHER" && (
+              <div>
+                <label className="mb-1.5 block text-sm font-semibold">
+                  Kelas <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={formData.className || ""}
                   onChange={(e) => setFormData({ ...formData, className: e.target.value })}
-                />
+                  disabled={!schoolInfo}
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50"
+                >
+                  <option value="">— Pilih kelas —</option>
+                  {schoolInfo?.classList.map((c) => (
+                    <option key={c} value={c}>Kelas {c}</option>
+                  ))}
+                </select>
+                {!schoolInfo && (
+                  <p className="mt-1.5 text-xs text-muted-foreground">Masukkan kode sekolah terlebih dahulu</p>
                 )}
               </div>
+            )}
               
               <Input
                 label="Password"

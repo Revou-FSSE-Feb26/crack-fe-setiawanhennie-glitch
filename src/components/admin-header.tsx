@@ -13,6 +13,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { fetchAdminStats, fetchOpenReports, logout } from "@/lib/auth-client";
+import DarkModeToggle from "./UI/darkmodetoggle";
 
 function timeAgo(dateString: string) {
   const seconds = Math.floor((Date.now() - new Date(dateString).getTime()) / 1000);
@@ -135,8 +136,9 @@ export default function AdminHeader() {
             </>
           )}
         </div>
+        <DarkModeToggle />
 
-        {/* 👤 Account */}
+        {/* Account */}
         <div className="relative">
           <button
             onClick={() => {

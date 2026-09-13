@@ -1,12 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import {
-  GraduationCap,
-  LayoutDashboard,
-  Users,
-  AlertTriangle,
   Settings,
   Save,
   CheckCircle2,
@@ -14,7 +9,14 @@ import {
   CalendarDays,
   UserPlus,
   Bell,
+  Copy,
+  RefreshCw,
 } from "lucide-react";
+import {
+  fetchMySchool,
+  updateMySchool,
+  regenerateSchoolCode,
+} from "@/lib/auth-client";
 
 const defaultSettings = {
   schoolName: "SMA 1 Jakarta",
@@ -125,22 +127,43 @@ function TextField({
 export default function AdminSettingsPage() {
   const [settings, setSettings] = useState<SettingsType>(defaultSettings);
   const [saved, setSaved] = useState(false);
+  const [schoolCode, setSchoolCode] = useState("");
 
   useEffect(() => {
     try {
       const stored = localStorage.getItem("admin_settings");
       if (stored) setSettings({ ...defaultSettings, ...JSON.parse(stored) });
-    } catch {
-      // ignore corrupted storage
-    }
+    } catch {}
+
+    fetchMySchool()
+      .then((s) => {
+        setSchoolCode(s.code);
+        setSettings((prev) => ({
+          ...prev,
+          schoolName: s.name,
+          address: s.address || "",
+          principal: s.principal || "",
+          contactEmail: s.contactEmail || "",
+          classList: (s.classList || []).join(", "),
+        }));
+      })
+      .catch(() => {});
   }, []);
 
   const update = <K extends keyof SettingsType>(key: K, value: SettingsType[K]) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
     setSaved(false);
   };
-
-  const handleSave = () => {
+  
+  const handleSave = async () => {
+    try {
+        await updateMySchool({
+          address: settings.address,
+          principal: settings.principal,
+          contactEmail: settings.contactEmail,
+          classList: settings.classList.split(",").map((c) => c.trim()).filter(Boolean),
+        });
+      } catch {}
     localStorage.setItem("admin_settings", JSON.stringify(settings));
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
@@ -175,10 +198,60 @@ export default function AdminSettingsPage() {
           </div>
         )}
 
+            <div className="mb-6 rounded-xl bg-card p-6 shadow-sm ring-1 ring-border">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h3 className="font-heading text-lg font-bold">Kode Bergabung Sekolah</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Bagikan ke murid & guru — mereka otomatis masuk sekolah dan kelas yang benar saat daftar.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <code className="rounded-lg bg-primary/10 px-4 py-2 font-mono text-lg font-extrabold tracking-wider text-primary">
+                    {schoolCode || "—"}
+                  </code>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(schoolCode);
+                      alert("Kode disalin!");
+                    }}
+                    title="Salin kode"
+                    className="rounded-lg border border-border p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  >
+                    <Copy className="h-4 w-4" />
+                  </button>
+                  <button
+                      onClick={async () => {
+                        if (!window.confirm("Buat kode baru? Kode lama akan berhenti bekerja.")) return;
+                        try {
+                          const s = await regenerateSchoolCode();
+                          setSchoolCode(s.code);
+                        } catch (e: any) {
+                          alert("Gagal: " + e.message + " — pastikan data Sekolah ada dan namanya sama persis dengan akun admin.");
+                        }
+                      }}
+                    title="Buat kode baru"
+                    className="rounded-lg border border-border p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
         <div className="grid gap-6 lg:grid-cols-2">
           {/* Profil Sekolah */}
           <SectionCard icon={School} title="Profil Sekolah" desc="Identitas sekolah yang tampil di platform">
-            <TextField label="Nama Sekolah" value={settings.schoolName} onChange={(v) => update("schoolName", v)} />
+              <div className="mb-4">
+                <label className="mb-1.5 block text-sm font-semibold">Nama Sekolah</label>
+                <input
+                  type="text"
+                  value={settings.schoolName}
+                  disabled
+                  className="w-full rounded-lg border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground"
+                />
+                <p className="mt-1 text-xs text-muted-foreground">Mengikuti akun admin sekolah</p>
+              </div>
             <TextField label="NPSN / ID Sekolah" value={settings.npsn} onChange={(v) => update("npsn", v)} />
             <TextField label="Alamat" value={settings.address} onChange={(v) => update("address", v)} />
             <TextField label="Kepala Sekolah" value={settings.principal} onChange={(v) => update("principal", v)} />

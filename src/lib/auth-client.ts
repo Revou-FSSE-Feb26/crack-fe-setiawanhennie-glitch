@@ -431,3 +431,44 @@ export async function resetPassword(token: string, newPassword: string) {
   }
   return res.json();
 }
+
+export async function lookupSchoolByCode(code: string) {
+  const res = await fetch(`${API_URL_BASE}/schools/join/${encodeURIComponent(code.trim())}`);
+  if (!res.ok) throw new Error('Kode sekolah tidak ditemukan');
+  return res.json();
+}
+
+export async function fetchMySchool() {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/schools/me`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Gagal memuat data sekolah');
+  return res.json();
+}
+
+export async function updateMySchool(data: {
+  address?: string;
+  principal?: string;
+  contactEmail?: string;
+  classList?: string[];
+}) {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/schools/me`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Gagal menyimpan pengaturan sekolah');
+  return res.json();
+}
+
+export async function regenerateSchoolCode() {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/schools/me/regenerate-code`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Gagal membuat kode baru');
+  return res.json();
+}

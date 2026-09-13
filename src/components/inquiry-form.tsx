@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/UI/button";
 import { Send, CheckCircle2, AlertCircle } from "lucide-react";
 
 const topics = ["Pendaftaran", "Kerjasama Sekolah", "Bantuan Teknis", "Lainnya"];
