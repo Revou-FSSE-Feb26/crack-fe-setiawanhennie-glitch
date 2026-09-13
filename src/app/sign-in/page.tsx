@@ -38,7 +38,8 @@ export default function LoginPage() {
       if (remember) localStorage.setItem("remembered_email", formData.email);
       else localStorage.removeItem("remembered_email");
 
-      if (result.user.role === "TEACHER") router.push("/teacher/dashboard");
+      if (result.user.role === "SUPER_ADMIN") router.push("/super/dashboard");
+      else if(result.user.role === "TEACHER") router.push("/teacher/dashboard");
       else if (result.user.role === "ADMIN") router.push("/admin/dashboard");
       else router.push("/student/dashboard");
     } catch (err: any) {

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   GraduationCap,
   LayoutDashboard,
@@ -16,6 +16,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { fetchTeacherStats, logout } from "@/lib/auth-client";
+import DarkModeToggle from "@/components/UI/darkmodetoggle";
 
 function timeAgo(dateString: string) {
   const seconds = Math.floor((Date.now() - new Date(dateString).getTime()) / 1000);
@@ -36,30 +37,65 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
   const [accountOpen, setAccountOpen] = useState(false);
   const pathname = usePathname();
 
+  const notifTimer = useRef<any>(null);
+  const accountTimer = useRef<any>(null);
+
+  const markNotifSeen = () => {
+    localStorage.setItem("teacher_notif_seen", String(Date.now()));
+    setHasNew(false);
+  };
+
+  const enterNotif = () => {
+    clearTimeout(notifTimer.current);
+    clearTimeout(accountTimer.current);
+    setAccountOpen(false);
+    setNotifOpen(true);
+    markNotifSeen();
+  };
+  const leaveNotif = () => {
+    notifTimer.current = setTimeout(() => setNotifOpen(false), 200);
+  };
+  const toggleNotif = () => {
+    clearTimeout(notifTimer.current);
+    clearTimeout(accountTimer.current);
+    setAccountOpen(false);
+    setNotifOpen((isOpen) => {
+      if (!isOpen) markNotifSeen();
+      return !isOpen;
+    });
+  };
+  const enterAccount = () => {
+    clearTimeout(accountTimer.current);
+    clearTimeout(notifTimer.current);
+    setNotifOpen(false);
+    setAccountOpen(true);
+  };
+  const leaveAccount = () => {
+    accountTimer.current = setTimeout(() => setAccountOpen(false), 200);
+  };
+
   useEffect(() => {
-    const stored = localStorage.getItem("user");
-    if (stored) {
-      const u = JSON.parse(stored);
-      setTeacher({ name: u.name || "Guru", email: u.email || "", school: u.school || "" });
-    }
-    fetchTeacherStats()
-      .then((stats) => {
-        const acts = stats.recentActivity ?? [];
-        setActivity(acts);
-        const lastSeen = Number(localStorage.getItem("notif_last_seen") || 0);
-        setHasNew(acts.some((a: any) => new Date(a.completedAt).getTime() > lastSeen));
-      })
-      .catch(console.error);
+    return () => {
+      clearTimeout(notifTimer.current);
+      clearTimeout(accountTimer.current);
+    };
   }, []);
 
-  const toggleNotif = () => {
-    if (!notifOpen) {
-      localStorage.setItem("notif_last_seen", String(Date.now()));
-      setHasNew(false);
-    }
-    setNotifOpen(!notifOpen);
-    setAccountOpen(false);
-  };
+  useEffect(() => {
+  const stored = localStorage.getItem("user");
+  if (stored) {
+    const u = JSON.parse(stored);
+    setTeacher({ name: u.name || "Guru", email: u.email || "", school: u.school || "" });
+  }
+  fetchTeacherStats()
+    .then((stats) => {
+      const acts = stats.recentActivity ?? [];
+      setActivity(acts);
+      const lastSeen = Number(localStorage.getItem("teacher_notif_seen") || 0);
+      setHasNew(acts.some((a: any) => new Date(a.completedAt).getTime() > lastSeen));
+    })
+    .catch(console.error);
+  }, []);
 
   const nav = [
     { href: "/teacher/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -126,20 +162,22 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            {/* 🔔 Notification bell */}
-            <div className="relative">
-              <button onClick={toggleNotif} className="relative text-muted-foreground hover:text-foreground">
+          <div className="flex items-center gap-1.5">
+            {/* 🔔 Notifications */}
+            <div className="relative" onMouseEnter={enterNotif} onMouseLeave={leaveNotif}>
+              <button
+                onClick={toggleNotif}
+                className="relative flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              >
                 <Bell className="h-5 w-5" />
                 {hasNew && (
-                  <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-rose-500 border-2 border-background"></span>
+                  <span className="absolute right-1.5 top-1.5 h-2.5 w-2.5 rounded-full bg-rose-500 ring-2 ring-background"></span>
                 )}
               </button>
 
               {notifOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
-                  <div className="absolute right-0 z-50 mt-3 w-80 rounded-xl bg-card p-2 shadow-xl ring-1 ring-border">
+                <div className="absolute right-0 top-full z-50 pt-2">
+                  <div className="w-80 rounded-xl bg-card p-2 shadow-xl ring-1 ring-border">
                     <p className="px-3 py-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
                       Notifikasi
                     </p>
@@ -169,18 +207,21 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
                       )}
                     </div>
                   </div>
-                </>
+                </div>
               )}
             </div>
+            <DarkModeToggle />
+            <div className="mx-1.5 h-6 w-px bg-border" aria-hidden />
 
-            {/* 👤 Account dropdown */}
-            <div className="relative">
+            {/* Account */}
+            <div className="relative" onMouseEnter={enterAccount} onMouseLeave={leaveAccount}>
               <button
                 onClick={() => {
-                  setAccountOpen(!accountOpen);
+                  clearTimeout(notifTimer.current);
                   setNotifOpen(false);
+                  setAccountOpen((v) => !v);
                 }}
-                className="flex items-center gap-3 pl-4 border-l border-border"
+                className="flex items-center gap-2.5 rounded-full py-1 pl-2.5 pr-1.5 transition-colors hover:bg-secondary"
               >
                 <div className="text-right hidden sm:block">
                   <p className="text-sm font-bold font-heading">{teacher.name}</p>
@@ -192,9 +233,8 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
               </button>
 
               {accountOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setAccountOpen(false)} />
-                  <div className="absolute right-0 z-50 mt-3 w-64 rounded-xl bg-card p-2 shadow-xl ring-1 ring-border">
+                <div className="absolute right-0 top-full z-50 pt-2">
+                  <div className="w-64 rounded-xl bg-card p-2 shadow-xl ring-1 ring-border">
                     <div className="border-b border-border px-3 py-3">
                       <p className="text-sm font-bold font-heading">{teacher.name}</p>
                       <p className="truncate text-xs text-muted-foreground">{teacher.email}</p>
@@ -220,7 +260,10 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
                         Pengaturan
                       </Link>
                       <button
-                        onClick={logout}
+                        onClick={() => {
+                          clearTimeout(accountTimer.current);
+                          logout();
+                        }}
                         className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-500/10"
                       >
                         <LogOut className="h-4 w-4" />
@@ -228,10 +271,10 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
                       </button>
                     </div>
                   </div>
-                </>
-              )}
+                  </div>
+                )}
             </div>
-          </div>
+          </div>        
         </header>
 
         <main className="flex-1 p-6 overflow-y-auto">{children}</main>

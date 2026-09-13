@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Bell,
   Search,
@@ -70,14 +70,49 @@ export default function AdminHeader() {
     );
   }, []);
 
-  const toggleNotif = () => {
-    if (!notifOpen) {
-      localStorage.setItem("admin_notif_seen", String(Date.now()));
-      setHasNew(false);
-    }
-    setNotifOpen(!notifOpen);
-    setAccountOpen(false);
+  const notifTimer = useRef<any>(null);
+  const accountTimer = useRef<any>(null);
+
+  const markNotifSeen = () => {
+    localStorage.setItem("admin_notif_seen", String(Date.now()));
+    setHasNew(false);
   };
+
+  const enterNotif = () => {
+    clearTimeout(notifTimer.current);
+    clearTimeout(accountTimer.current);
+    setAccountOpen(false);
+    setNotifOpen(true);
+    markNotifSeen();
+  };
+  const leaveNotif = () => {
+    notifTimer.current = setTimeout(() => setNotifOpen(false), 200);
+  };
+  const toggleNotif = () => {
+    clearTimeout(notifTimer.current);
+    clearTimeout(accountTimer.current);
+    setAccountOpen(false);
+    setNotifOpen((isOpen) => {
+      if (!isOpen) markNotifSeen();
+      return !isOpen;
+    });
+  };
+  const enterAccount = () => {
+    clearTimeout(accountTimer.current);
+    clearTimeout(notifTimer.current);
+    setNotifOpen(false);
+    setAccountOpen(true);
+  };
+  const leaveAccount = () => {
+    accountTimer.current = setTimeout(() => setAccountOpen(false), 200);
+  };
+
+  useEffect(() => {
+    return () => {
+      clearTimeout(notifTimer.current);
+      clearTimeout(accountTimer.current);
+    };
+  }, []);
 
   return (
     <header className="flex h-16 items-center justify-between border-b border-border bg-card/50 px-6 backdrop-blur-sm sticky top-0 z-40">
@@ -92,60 +127,64 @@ export default function AdminHeader() {
         </div>
       </div>
 
-      <div className="flex items-center gap-4">
-        {/* 🔔 Notifications */}
-        <div className="relative">
-          <button onClick={toggleNotif} className="relative text-muted-foreground hover:text-foreground">
-            <Bell className="h-5 w-5" />
-            {hasNew && (
-              <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-rose-500 border-2 border-background"></span>
-            )}
-          </button>
+        <div className="flex items-center gap-1.5">
+          {/* 🔔 Notifications */}
+          <div className="relative" onMouseEnter={enterNotif} onMouseLeave={leaveNotif}>
+              <button
+                onClick={toggleNotif}
+                className="relative flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              >
+                <Bell className="h-5 w-5" />
+                {hasNew && (
+                  <span className="absolute right-1.5 top-1.5 h-2.5 w-2.5 rounded-full bg-rose-500 ring-2 ring-background"></span>
+                )}
+              </button>
 
-          {notifOpen && (
-            <>
-              <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
-              <div className="absolute right-0 z-50 mt-3 w-80 rounded-xl bg-card p-2 shadow-xl ring-1 ring-border">
-                <p className="px-3 py-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
-                  Notifikasi
-                </p>
-                <div className="max-h-80 overflow-y-auto">
-                  {notifications.length === 0 ? (
-                    <p className="px-3 py-6 text-center text-sm text-muted-foreground">Tidak ada notifikasi.</p>
-                  ) : (
-                    notifications.map((n) => (
-                      <div key={n.id} className="flex items-start gap-3 rounded-lg px-3 py-2.5 hover:bg-muted/50">
-                        <div
-                          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
-                            n.kind === "report" ? "bg-red-500/10 text-red-600" : "bg-blue-500/10 text-blue-600"
-                          }`}
-                        >
-                          {n.kind === "report" ? <AlertTriangle className="h-4 w-4" /> : <UserPlus className="h-4 w-4" />}
+            {notifOpen && (
+              <div className="absolute right-0 top-full z-50 pt-2">
+                <div className="w-80 rounded-xl bg-card p-2 shadow-xl ring-1 ring-border">
+                  <p className="px-3 py-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                    Notifikasi
+                  </p>
+                  <div className="max-h-80 overflow-y-auto">
+                    {notifications.length === 0 ? (
+                      <p className="px-3 py-6 text-center text-sm text-muted-foreground">Tidak ada notifikasi.</p>
+                    ) : (
+                      notifications.map((n) => (
+                        <div key={n.id} className="flex items-start gap-3 rounded-lg px-3 py-2.5 hover:bg-muted/50">
+                          <div
+                            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
+                              n.kind === "report" ? "bg-red-500/10 text-red-600" : "bg-blue-500/10 text-blue-600"
+                            }`}
+                          >
+                            {n.kind === "report" ? <AlertTriangle className="h-4 w-4" /> : <UserPlus className="h-4 w-4" />}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-bold">{n.title}</p>
+                            <p className="truncate text-xs text-muted-foreground">
+                              {n.detail} • {timeAgo(n.at)}
+                            </p>
+                          </div>
                         </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-bold">{n.title}</p>
-                          <p className="truncate text-xs text-muted-foreground">
-                            {n.detail} • {timeAgo(n.at)}
-                          </p>
-                        </div>
-                      </div>
-                    ))
-                  )}
+                      ))
+                    )}
+                  </div>
                 </div>
               </div>
-            </>
-          )}
-        </div>
+            )}
+          </div>
         <DarkModeToggle />
+        <div className="mx-1.5 h-6 w-px bg-border" aria-hidden />
 
         {/* Account */}
-        <div className="relative">
+        <div className="relative" onMouseEnter={enterAccount} onMouseLeave={leaveAccount}>
           <button
             onClick={() => {
-              setAccountOpen(!accountOpen);
+              clearTimeout(accountTimer.current);
               setNotifOpen(false);
+              setAccountOpen((v) => !v);
             }}
-            className="flex items-center gap-3 pl-4 border-l border-border"
+            className="flex items-center gap-2.5 rounded-full py-1 pl-2.5 pr-1.5 transition-colors hover:bg-secondary"
           >
             <div className="text-right hidden sm:block">
               <p className="text-sm font-bold font-heading">{admin.name}</p>
@@ -157,9 +196,8 @@ export default function AdminHeader() {
           </button>
 
           {accountOpen && (
-            <>
-              <div className="fixed inset-0 z-40" onClick={() => setAccountOpen(false)} />
-              <div className="absolute right-0 z-50 mt-3 w-64 rounded-xl bg-card p-2 shadow-xl ring-1 ring-border">
+            <div className="absolute right-0 top-full z-50 pt-2">
+              <div className="w-64 rounded-xl bg-card p-2 shadow-xl ring-1 ring-border">
                 <div className="border-b border-border px-3 py-3">
                   <p className="text-sm font-bold font-heading">{admin.name}</p>
                   <p className="truncate text-xs text-muted-foreground">{admin.email}</p>
@@ -194,9 +232,9 @@ export default function AdminHeader() {
                   </button>
                 </div>
               </div>
-            </>
+            </div>
           )}
-        </div>
+          </div>
       </div>
     </header>
   );
