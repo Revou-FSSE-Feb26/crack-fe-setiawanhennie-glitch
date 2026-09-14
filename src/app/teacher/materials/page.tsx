@@ -32,7 +32,7 @@ import {
   updateCourseAssignments,
 } from "@/lib/auth-client";
 
-const EMOJIS = ["🔢", "🔬", "📚", "🌍", "", "💻", "🎵", "⚽"];
+const EMOJIS = ["🔢", "🔬", "📚", "🌍", "💻", "🏛️", "⚽"];
 const COLORS = [
   "bg-blue-500/10",
   "bg-emerald-500/10",
@@ -404,6 +404,8 @@ export default function TeacherMaterialsPage() {
         ))}
       </div>
 
+
+
       {/* Quiz list */}
       <div className="mt-10">
         <h2 className="mb-4 flex items-center gap-2 font-heading text-xl font-extrabold">
@@ -473,7 +475,7 @@ export default function TeacherMaterialsPage() {
                   mode === "course" ? "bg-card text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                Kursus Baru
+                Materi Baru
               </button>
               <button
                 onClick={() => setMode("lesson")}
@@ -492,7 +494,7 @@ export default function TeacherMaterialsPage() {
             {mode === "course" ? (
               <div className="space-y-4">
                 <div>
-                  <label className="mb-1.5 block text-sm font-semibold">Judul Kursus</label>
+                  <label className="mb-1.5 block text-sm font-semibold">Judul Materi</label>
                   <input
                     type="text"
                     placeholder="Contoh: Matematika Dasar"
@@ -505,7 +507,7 @@ export default function TeacherMaterialsPage() {
                   <label className="mb-1.5 block text-sm font-semibold">Deskripsi</label>
                   <textarea
                     rows={3}
-                    placeholder="Jelaskan singkat tentang kursus ini..."
+                    placeholder="Jelaskan singkat tentang Materi ini..."
                     value={courseForm.description}
                     onChange={(e) => setCourseForm({ ...courseForm, description: e.target.value })}
                     className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
@@ -568,20 +570,20 @@ export default function TeacherMaterialsPage() {
                     })}
                   </div>
                   <p className="mt-1.5 text-xs text-muted-foreground">
-                    Tidak pilih apa-apa = kursus untuk seluruh sekolah.
+                    Tidak pilih apa-apa = Materi untuk seluruh sekolah.
                   </p>
                 </div>
               </div>
             ) : (
               <div className="space-y-4">
                 <div>
-                  <label className="mb-1.5 block text-sm font-semibold">Kursus</label>
+                  <label className="mb-1.5 block text-sm font-semibold">Materi</label>
                   <select
                     value={lessonForm.courseId}
                     onChange={(e) => setLessonForm({ ...lessonForm, courseId: e.target.value })}
                     className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
                   >
-                    <option value="">— Pilih kursus —</option>
+                    <option value="">— Pilih Materi —</option>
                     {courses.map((c) => (
                       <option key={c.id} value={c.id}>
                         {c.emoji} {c.title}
@@ -1068,7 +1070,7 @@ export default function TeacherMaterialsPage() {
                 );
               })}
             </div>
-            <p className="mt-3 text-xs text-muted-foreground">Kosong = seluruh sekolah bisa melihat kursus ini.</p>
+            <p className="mt-3 text-xs text-muted-foreground">Kosong = seluruh sekolah bisa melihat Materi ini.</p>
             <div className="mt-5 flex justify-end gap-2">
               <button
                 onClick={() => setAssignOpen(null)}

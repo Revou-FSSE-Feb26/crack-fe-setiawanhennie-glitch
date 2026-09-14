@@ -472,3 +472,65 @@ export async function regenerateSchoolCode() {
   if (!res.ok) throw new Error('Gagal membuat kode baru');
   return res.json();
 }
+
+export async function fetchSuperStats() {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/super/stats`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) throw new Error('Gagal memuat statistik platform');
+  return res.json();
+}
+
+export async function fetchSuperSchools() {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/super/schools`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) throw new Error('Gagal memuat daftar sekolah');
+  return res.json();
+}
+
+export async function onboardSchool(data: any) {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/super/schools`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.message || 'Gagal onboard sekolah');
+  }
+  return res.json();
+}
+
+export async function fetchSchoolAdmins(schoolId: string) {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/super/schools/${schoolId}/admins`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Gagal memuat admin sekolah');
+  return res.json();
+}
+
+export async function addSchoolAdmin(schoolId: string, data: any) {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/super/schools/${schoolId}/admins`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.message || 'Gagal menambah admin');
+  }
+  return res.json();
+}
+
+export async function toggleAdminSuspend(adminId: string, suspend: boolean) {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/super/admins/${adminId}/suspend`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ suspend }),
+  });
+  if (!res.ok) throw new Error('Gagal mengubah status admin');
+  return res.json();
+}
