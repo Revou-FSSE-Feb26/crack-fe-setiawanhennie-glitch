@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { GraduationCap, LogOut } from "lucide-react";
 import { Button } from "@/components/UI/button";
 import { logout } from "@/lib/auth-client";
+import DarkModeToggle from "@/components/UI/darkmodetoggle";
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
   const [name, setName] = useState("Murid");
@@ -31,9 +32,11 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
               NusaSkillz
             </span>
           </Link>
+         
           <div className="flex items-center gap-4">
             <div className="hidden sm:flex items-center gap-2 text-sm font-medium">
-              <div className="relative">
+              <div className="relative ml-auto flex items-center gap-2">
+                 <DarkModeToggle />
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary font-bold">
                   {name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
                 </div>

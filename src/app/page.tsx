@@ -102,7 +102,7 @@ export default function HomePage() {
             </h1>
             
             <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground">
-              Selesaikan pelajaran, kerjakan kuis, kumpulkan XP, dan buka level
+              Selesaikan pelajaran, kerjakan kuis, kumpulkan XP, dan materi
               baru dalam berbagai mata pelajaran.
             </p>
 
@@ -111,12 +111,12 @@ export default function HomePage() {
               <Button asChild size="lg" className="rounded-full font-heading text-base">
                 <Link href="/sign-up">Mulai petualanganmu</Link>
               </Button>
-              <Link href="tel:+622150001234" className="group flex items-center gap-3">
+              <Link href="tel:+622100000000" className="group flex items-center gap-3">
                 <span className="flex h-11 w-11 items-center justify-center rounded-full bg-secondary text-secondary-foreground transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                   <PhoneCall className="h-4 w-4" />
                 </span>
                 <span className="text-left">
-                  <span className="block font-heading text-sm font-bold">(021) 5000-1234</span>
+                  <span className="block font-heading text-sm font-bold">(021) 0000-0000</span>
                   <span className="block text-xs text-muted-foreground">Untuk pertanyaan seputar pendaftaran</span>
                 </span>
               </Link>
@@ -281,7 +281,7 @@ export default function HomePage() {
                     <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10">
                       <PhoneCall className="h-4 w-4" />
                     </span>
-                    (021) 5000-1234
+                    (021) 0000-0000
                   </li>
                 </ul>
               </div>

@@ -7,7 +7,6 @@ import {
   GraduationCap,
   Users,
   ShieldCheck,
-  Zap,
   ArrowRight,
   Copy,
 } from "lucide-react";

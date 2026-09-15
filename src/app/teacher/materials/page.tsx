@@ -30,6 +30,9 @@ import {
   deleteQuiz,
   fetchTeacherClasses,
   updateCourseAssignments,
+  deleteCourse,
+  fetchQuizForEdit,
+  updateQuiz,
 } from "@/lib/auth-client";
 
 const EMOJIS = ["🔢", "🔬", "📚", "🌍", "💻", "🏛️", "⚽"];
@@ -73,6 +76,8 @@ export default function TeacherMaterialsPage() {
   const [editForm, setEditForm] = useState({ id: "", title: "", content: "" });
 
   // Quiz builder state
+  const [quizEditId, setQuizEditId] = useState<string | null>(null);
+  const [quizLoading, setQuizLoading] = useState(false);
   const [quizzes, setQuizzes] = useState<any[]>([]);
   const [quizOpen, setQuizOpen] = useState(false);
   const [quizSaving, setQuizSaving] = useState(false);
@@ -143,12 +148,52 @@ export default function TeacherMaterialsPage() {
       pairs: quizForm.questions[qi].pairs.filter((_: any, i2: number) => i2 !== pi),
     });
 
+  const closeQuiz = () => {
+    setQuizOpen(false);
+    setQuizEditId(null);
+  };
+
+  const openQuizCreate = () => {
+    setQuizEditId(null);
+    setQuizError("");
+    setQuizForm({ title: "", lessonId: "", timeLimit: "", lives: "3", xpReward: "50", questions: [{ ...emptyQuestion }] });
+    setQuizOpen(true);
+  };
+
+  const openQuizEdit = async (id: string) => {
+    setQuizOpen(true);
+    setQuizLoading(true);
+    setQuizError("");
+    try {
+      const quiz = await fetchQuizForEdit(id);
+      setQuizEditId(id);
+      setQuizForm({
+        title: quiz.title,
+        lessonId: quiz.lessonId || "",
+        timeLimit: quiz.timeLimit != null ? String(quiz.timeLimit) : "",
+        lives: quiz.lives != null ? String(quiz.lives) : "",
+        xpReward: String(quiz.xpReward),
+        questions: quiz.questions.map((q: any) => ({
+          type: q.type,
+          prompt: q.prompt,
+          options: q.options?.length ? q.options : ["", "", "", ""],
+          answer: q.answer,
+          pairs: q.pairs ?? [{ left: "", right: "" }],
+        })),
+      });
+    } catch (e: any) {
+      setQuizError(e.message);
+    } finally {
+      setQuizLoading(false);
+    }
+  };
+
   const handleQuizSubmit = async () => {
     setQuizSaving(true);
     setQuizError("");
     try {
       if (!quizForm.title.trim()) throw new Error("Judul kuis wajib diisi");
-      await createQuiz({
+      const payload = {
         title: quizForm.title,
         lessonId: quizForm.lessonId || undefined,
         timeLimit: quizForm.timeLimit ? Number(quizForm.timeLimit) : null,
@@ -164,15 +209,11 @@ export default function TeacherMaterialsPage() {
           answer: q.type === "ORDERING" || q.type === "MATCHING" ? "" : q.answer,
           pairs: q.type === "MATCHING" ? q.pairs : undefined,
         })),
-      });
-      setQuizForm({
-        title: "",
-        lessonId: "",
-        timeLimit: "",
-        lives: "3",
-        xpReward: "50",
-        questions: [{ ...emptyQuestion }],
-      });
+      };
+      if (quizEditId) await updateQuiz(quizEditId, payload);
+      else await createQuiz(payload);
+      setQuizForm({ title: "", lessonId: "", timeLimit: "", lives: "3", xpReward: "50", questions: [{ ...emptyQuestion }] });
+      setQuizEditId(null);
       await loadQuizzes();
       setQuizOpen(false);
     } catch (e: any) {
@@ -191,6 +232,32 @@ export default function TeacherMaterialsPage() {
       alert(e.message);
     }
   };
+
+    const handleCourseDelete = async (id: string) => {
+    if (!window.confirm("Hapus materi ini? Semua pelajaran di dalamnya juga akan terhapus.")) return;
+    try {
+      await deleteCourse(id);
+      await load();
+      await loadQuizzes();
+    } catch (e: any) {
+      alert(e.message);
+    }
+  };
+
+  const handleLessonDelete = async (id: string) => {
+    if (!window.confirm("Hapus pelajaran ini?")) return;
+    try {
+      await deleteLesson(id);
+      await load();
+    } catch (e: any) {
+      alert(e.message);
+    }
+  };
+
+  // Flat list of all lessons across courses (for the Materi section)
+  const allLessons = courses.flatMap((c: any) =>
+    c.lessons.map((l: any) => ({ ...l, courseTitle: c.title, courseEmoji: c.emoji }))
+  );
 
   /* ---------- Create ---------- */
   const handleSubmit = async () => {
@@ -327,7 +394,7 @@ export default function TeacherMaterialsPage() {
             Buat Materi
           </button>
           <button
-            onClick={() => setQuizOpen(true)}
+            onClick={openQuizCreate}
             className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-primary to-purple-600 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:opacity-90"
           >
             <Gamepad2 className="h-4 w-4" />
@@ -356,6 +423,13 @@ export default function TeacherMaterialsPage() {
                   className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
                 >
                   <Users className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => handleCourseDelete(course.id)}
+                  title="Hapus materi"
+                  className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-500"
+                >
+                  <Trash2 className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => setExpanded(expanded === course.id ? null : course.id)}
@@ -404,7 +478,51 @@ export default function TeacherMaterialsPage() {
         ))}
       </div>
 
-
+      {/* Materi (lessons) list */}
+      <div className="mt-10">
+        <h2 className="mb-4 flex items-center gap-2 font-heading text-xl font-extrabold">
+          <BookOpen className="h-5 w-5 text-primary" />
+          Materi ({allLessons.length})
+        </h2>
+        {allLessons.length === 0 ? (
+          <div className="rounded-xl bg-card p-8 text-center ring-1 ring-border">
+            <p className="text-sm text-muted-foreground">
+              Belum ada materi. Klik "Buat Materi" untuk membuat pelajaran pertama!
+            </p>
+          </div>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2">
+            {allLessons.map((l: any) => (
+              <div key={l.id} className="rounded-xl bg-card p-5 shadow-sm ring-1 ring-border">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="truncate font-heading text-base font-extrabold">{l.title}</p>
+                    <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                      {l.courseEmoji} {l.courseTitle}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 gap-1">
+                    <button
+                      onClick={() => openLesson(l.id)}
+                      title="Edit materi"
+                      className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => handleLessonDelete(l.id)}
+                      title="Hapus materi"
+                      className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-500"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Quiz list */}
       <div className="mt-10">
@@ -422,20 +540,28 @@ export default function TeacherMaterialsPage() {
           <div className="grid gap-4 sm:grid-cols-2">
             {quizzes.map((q) => (
               <div key={q.id} className="rounded-xl bg-card p-5 shadow-sm ring-1 ring-border">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <p className="truncate font-heading text-base font-extrabold">{q.title}</p>
-                    <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                      {q.lesson ? `📖 ${q.lesson.title}` : "Tanpa pelajaran"} • {q._count.questions} pertanyaan
-                    </p>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="truncate font-heading text-base font-extrabold">{q.title}</p>
+                      <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                        {q.lesson ? `📖 ${q.lesson.title}` : "Tanpa pelajaran"} • {q._count.questions} pertanyaan
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 gap-1">
+                      <button 
+                      onClick={() => openQuizEdit(q.id)} 
+                      title="Edit kuis" 
+                      className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground">
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                      <button 
+                      onClick={() => handleQuizDelete(q.id)} 
+                      title="Hapus kuis" 
+                      className="rounded-lg p-1.5 text-muted-foreground hover:bg-red-500/10 hover:text-red-500">
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
-                  <button
-                    onClick={() => handleQuizDelete(q.id)}
-                    className="shrink-0 text-muted-foreground hover:text-red-500"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
                 <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold">
                   <span className="rounded-full bg-purple-500/10 px-2.5 py-1 text-purple-600">+{q.xpReward} XP</span>
                   {q.timeLimit && (
@@ -670,11 +796,11 @@ export default function TeacherMaterialsPage() {
       {/* ================= QUIZ BUILDER MODAL ================= */}
       {quizOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setQuizOpen(false)} />
+          <div className="absolute inset-0 bg-black/50" onClick={closeQuiz} />
           <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-card p-6 shadow-xl ring-1 ring-border">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="font-heading text-xl font-extrabold">🎮 Buat Kuis</h2>
-              <button onClick={() => setQuizOpen(false)} className="text-muted-foreground hover:text-foreground">
+              <h2 className="font-heading text-xl font-extrabold">{quizEditId ? "✏️ Edit Kuis" : "🎮 Buat Kuis"}</h2>
+              <button onClick={closeQuiz} className="text-muted-foreground hover:text-foreground">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -683,6 +809,10 @@ export default function TeacherMaterialsPage() {
               <div className="mb-4 rounded-lg bg-red-500/10 p-3 text-sm font-medium text-red-600">{quizError}</div>
             )}
 
+            {quizLoading ? (
+              <p className="py-8 text-center text-sm text-muted-foreground">Memuat kuis...</p>
+            ) : (
+              <>
             {/* Quiz settings */}
             <div className="space-y-4">
               <div>
@@ -882,7 +1012,7 @@ export default function TeacherMaterialsPage() {
                           <span className="text-sm font-medium">{opt}</span>
                         </label>
                       ))}
-                      <p className="text-xs text-muted-foreground">Tandai radio = jawaban benar</p>
+                      <p className="text-xs text-muted-foreground">Tandai pilihan untuk menandakan jawaban benar</p>
                     </div>
                   ) : (
                     <div className="space-y-2">
@@ -919,7 +1049,7 @@ export default function TeacherMaterialsPage() {
                       <button onClick={() => addOption(i)} className="text-xs font-semibold text-primary hover:underline">
                         + Tambah opsi
                       </button>
-                      <p className="text-xs text-muted-foreground">Tandai radio = jawaban benar</p>
+                      <p className="text-xs text-muted-foreground">Tandai pilihan untuk menandakan jawaban benar</p>
                     </div>
                   )}
                 </div>
@@ -937,7 +1067,7 @@ export default function TeacherMaterialsPage() {
             {/* Footer */}
             <div className="mt-6 flex justify-end gap-2">
               <button
-                onClick={() => setQuizOpen(false)}
+                onClick={closeQuiz}
                 className="rounded-lg px-4 py-2 text-sm font-semibold text-muted-foreground hover:bg-muted hover:text-foreground"
               >
                 Batal
@@ -947,11 +1077,13 @@ export default function TeacherMaterialsPage() {
                 disabled={quizSaving}
                 className="rounded-lg bg-primary px-5 py-2 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
               >
-                {quizSaving ? "Menyimpan..." : "Simpan Kuis"}
+                {quizSaving ? "Menyimpan..." : quizEditId ? "Simpan Perubahan" : "Simpan Kuis"}
               </button>
             </div>
-          </div>
+            </>
+          )}
         </div>
+      </div>
       )}
 
       {/* ================= EDIT MODAL ================= */}

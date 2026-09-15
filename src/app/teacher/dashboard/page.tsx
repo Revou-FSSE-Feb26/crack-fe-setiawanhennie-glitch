@@ -9,8 +9,6 @@ import {
   School,
   Clock,
   Trophy,
-  Plus,
-  UserPlus,
 } from "lucide-react";
 import { fetchTeacherStats } from "@/lib/auth-client";
 

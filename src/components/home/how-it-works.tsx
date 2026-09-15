@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CheckCircle2, BookOpen, Zap, type LucideIcon } from "lucide-react";
+import { CheckCircle2, BookOpen, Zap,} from "lucide-react";
 
 const STEPS = [
   { step: "01", title: "Daftar & verifikasi", desc: "Buat akun gratis dan verifikasi emailmu dalam 30 detik.", icon: CheckCircle2 },
@@ -69,7 +69,6 @@ export default function HowItWorks() {
         </div>
 
         <div className="relative grid gap-6 md:grid-cols-3">
-          {/* Animated dashed line (SVG so we can draw it) */}
           <svg
             aria-hidden
             className="pointer-events-none absolute left-0 right-0 top-9 hidden h-2 w-full md:block"
@@ -94,7 +93,7 @@ export default function HowItWorks() {
           </svg>
 
           {STEPS.map((item, i) => {
-            const delay = i * 300; // stagger
+            const delay = i * 300;
             return (
               <div
                 key={item.step}

@@ -534,3 +534,36 @@ export async function toggleAdminSuspend(adminId: string, suspend: boolean) {
   if (!res.ok) throw new Error('Gagal mengubah status admin');
   return res.json();
 }
+
+export async function deleteCourse(courseId: string) {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/teacher/courses/${courseId}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Gagal menghapus materi');
+  return res.json();
+}
+
+export async function fetchQuizForEdit(quizId: string) {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/teacher/quizzes/${quizId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Gagal memuat kuis');
+  return res.json();
+}
+
+export async function updateQuiz(quizId: string, data: any) {
+  const token = getToken();
+  const res = await fetch(`${API_URL_BASE}/teacher/quizzes/${quizId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.message || 'Gagal memperbarui kuis');
+  }
+  return res.json();
+}
