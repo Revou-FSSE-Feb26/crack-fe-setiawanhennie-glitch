@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/UI/button";
 import {
@@ -15,7 +14,7 @@ import {
   BookOpenCheck,
   type LucideIcon,
 } from "lucide-react";
-import { fetchStudentStats, logout } from "@/lib/auth-client";
+import { fetchStudentStats } from "@/lib/auth-client";
 
 type StatTone = "primary" | "accent" | "success";
 
@@ -47,25 +46,21 @@ function StatCard({
 }
 
 export default function DashboardPage() {
-  const router = useRouter();
   const [stats, setStats] = useState<any>(null);
 
   useEffect(() => {
     fetchStudentStats().then(setStats).catch(console.error);
   }, []);
 
-  const handleLogout = () => {
-    logout();
-    router.push("/");
-  };
-
   const user = stats?.user;
   const continueTarget = stats?.courses?.find((c: any) => c.nextLessonId);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 flex flex-col gap-6">
-      {!stats ? (
-        <p className="text-muted-foreground">Memuat...</p>
+      {stats.courses.length === 0 ? (
+        <p className="py-4 text-center text-sm text-muted-foreground">
+          Belum ada kursus untuk kelasmu — segera hadir! 🎒
+        </p>
       ) : (
         <>
           {/* Welcome */}
@@ -104,7 +99,9 @@ export default function DashboardPage() {
               <div className="relative h-3 w-full rounded-full bg-white/20 overflow-hidden">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 transition-all duration-700 ease-out relative overflow-hidden"
-                  style={{ width: `${Math.min(100, (user.xp / stats.xpToNext) * 100)}%` }}
+                  style={{
+                    width: `${Math.min(100, ((user.xp - (user.level - 1) * 500) / 500) * 100)}%`,
+                  }}
                 >
                   <div className="absolute inset-0 bg-white/30 animate-pulse"></div>
                 </div>
@@ -159,12 +156,10 @@ export default function DashboardPage() {
                   </Button>
                 </div>
                 <div className="space-y-2">
-                  {stats.courses.map((course: any) => (
-                    <Link
-                      key={course.id}
-                      href={`/student/lesson?id=${course.nextLessonId || course.firstLessonId}`}
-                      className="group block"
-                    >
+                  {stats.courses.map((course: any) => {
+                    const targetId = course.nextLessonId || course.firstLessonId;
+
+                    const row = (
                       <div className="flex items-center gap-4 p-3 rounded-xl transition-all hover:bg-muted/50">
                         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary text-2xl transition-transform group-hover:scale-110">
                           {course.emoji}
@@ -174,18 +169,37 @@ export default function DashboardPage() {
                             <span className="font-semibold font-heading group-hover:text-primary transition-colors">
                               {course.title}
                             </span>
-                            <span className="text-sm text-muted-foreground">{course.done}/{course.total}</span>
+                            <span className="text-sm text-muted-foreground">
+                              {course.done}/{course.total}
+                            </span>
                           </div>
                           <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
                             <div
                               className="h-full rounded-full bg-gradient-to-r from-primary to-purple-600 transition-all"
-                              style={{ width: `${course.total ? Math.round((course.done / course.total) * 100) : 0}%` }}
+                              style={{
+                                width: `${course.total ? Math.round((course.done / course.total) * 100) : 0}%`,
+                              }}
                             ></div>
                           </div>
                         </div>
                       </div>
-                    </Link>
-                  ))}
+                    );
+
+                    return targetId ? (
+                      // Goes to the right lesson
+                      <Link key={course.id} href={`/student/lesson?id=${targetId}`} className="group block">
+                        {row}
+                      </Link>
+                    ) : (
+                      // Empty course
+                      <div key={course.id} className="opacity-60">
+                        {row}
+                        <p className="px-3 pb-2 text-xs font-semibold text-muted-foreground">
+                          Isi kursus segera hadir 🔜
+                        </p>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -230,8 +244,13 @@ export default function DashboardPage() {
                     Sekolahmu
                   </span>
                 </div>
-                <div className="space-y-3">
-                  {stats.leaderboard.map((player: any) => (
+                {stats.leaderboard.length === 0 ? (
+                  <p className="py-4 text-center text-sm text-muted-foreground">
+                    Belum ada pesaing di sekolahmu. Jadilah yang pertama! 🏆
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {stats.leaderboard.map((player: any) => (
                     <div
                       key={player.rank}
                       className={`flex items-center gap-3 p-3 rounded-2xl transition-all ${
@@ -265,6 +284,7 @@ export default function DashboardPage() {
                     </div>
                   ))}
                 </div>
+                )}
               </div>
             </div>
           </div>
