@@ -5,16 +5,23 @@ const publicRoutes = ['/', '/sign-in', '/sign-up', '/verify', '/forgot-password'
 function getRoleFromToken(token: string): string | null {
   try {
     const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString());
-    if (payload.exp && payload.exp * 1000 < Date.now()) return null;
     return payload.role ?? null;
   } catch {
     return null;
   }
 }
 
+function homeFor(role: string): string {
+  if (role === 'SUPER_ADMIN') return '/super/dashboard';
+  if (role === 'ADMIN') return '/admin/dashboard';
+  if (role === 'TEACHER') return '/teacher/dashboard';
+  return '/student/dashboard';
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get('token')?.value;
+
   const legacy: Record<string, string> = {
     '/dashboard': '/student/dashboard',
     '/courses': '/student/courses',
@@ -27,37 +34,37 @@ export function middleware(request: NextRequest) {
   }
 
   const isPublic = publicRoutes.includes(pathname);
-  const role = token ? getRoleFromToken(token) : null;
 
-  if (isPublic) {
-    if (role && pathname !== '/') {
-      const url = request.nextUrl.clone();
-      url.pathname =
-        role === 'ADMIN'
-          ? '/admin/dashboard'
-          : role === 'TEACHER'
-          ? '/teacher/dashboard'
-          : '/student/dashboard';
-      return NextResponse.redirect(url);
-    }
-    return NextResponse.next();
-  }
-
-  if (!role) {
+  if (!token) {
+    if (isPublic) return NextResponse.next();
     const url = request.nextUrl.clone();
     url.pathname = '/sign-in';
     return NextResponse.redirect(url);
   }
 
+  const role = getRoleFromToken(token);
+
+  if (isPublic && pathname !== '/' && role) {
+    const url = request.nextUrl.clone();
+    url.pathname = homeFor(role);
+    return NextResponse.redirect(url);
+  }
+
+  if (pathname.startsWith('/super') && role !== 'SUPER_ADMIN') {
+    const url = request.nextUrl.clone();
+    url.pathname = role ? homeFor(role) : '/sign-in';
+    return NextResponse.redirect(url);
+  }
+
   if (pathname.startsWith('/admin') && role !== 'ADMIN') {
     const url = request.nextUrl.clone();
-    url.pathname = role === 'TEACHER' ? '/teacher/dashboard' : '/student/dashboard';
+    url.pathname = role ? homeFor(role) : '/sign-in';
     return NextResponse.redirect(url);
   }
 
   if (pathname.startsWith('/teacher') && role !== 'TEACHER' && role !== 'ADMIN') {
     const url = request.nextUrl.clone();
-    url.pathname = '/student/dashboard';
+    url.pathname = role ? homeFor(role) : '/sign-in';
     return NextResponse.redirect(url);
   }
 
