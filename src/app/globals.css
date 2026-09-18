@@ -59,20 +59,20 @@ html {
   --font-geist-mono: ui-monospace, monospace;
   font-size: 14px;
   --background: oklch(0.985 0.008 280);
-  --foreground: oklch(0.22 0.03 280);
+  --foreground: rgb(24, 25, 40);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.22 0.03 280);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.22 0.03 280);
-  --primary: oklch(0.55 0.2 280); /* Vibrant Purple/Indigo */
+  --primary: #6159e1; /* Vibrant Purple/Indigo */
   --primary-foreground: oklch(0.99 0.005 280);
   --secondary: oklch(0.95 0.02 280);
   --secondary-foreground: oklch(0.35 0.08 280);
   --muted: oklch(0.96 0.01 280);
   --muted-foreground: oklch(0.55 0.03 280);
-  --accent: oklch(0.8 0.16 80); /* Vibrant Amber/Gold */
+  --accent: #f3b01d; /* Vibrant Amber/Gold */
   --accent-foreground: oklch(0.28 0.06 80);
-  --destructive: oklch(0.62 0.23 25);
+  --destructive: #f22a36;
   --border: oklch(0.91 0.015 280);
   --input: oklch(0.91 0.015 280);
   --ring: oklch(0.55 0.2 280);
