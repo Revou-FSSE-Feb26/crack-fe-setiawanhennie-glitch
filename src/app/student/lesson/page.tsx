@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/UI/button";
-import { X, Heart, Zap, Check, X as XIcon, Trophy, ArrowUp, ArrowDown, Timer, Play, BookOpenCheck } from "lucide-react";
+import { X, Heart, Zap, Check, X as XIcon, Trophy, ArrowUp, ArrowDown, Timer, Play, BookOpenCheck, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   fetchStudentLesson,
@@ -63,6 +63,7 @@ export default function StudentLessonPage() {
   }, []);
 
   const q = quiz?.questions?.[step];
+  const myProgress = lesson?.progress?.[0];
   const scrambled = useMemo(
     () => (q?.type === "WORD_SCRAMBLE" ? (q.scrambledLetters ?? []) : []),
     [q?.id]
@@ -190,11 +191,12 @@ export default function StudentLessonPage() {
           Skor kamu: <b>{result.score}/100</b> ({result.correct}/{result.total} benar)
           {result.maxStreak > 1 && ` • streak terbaik 🔥${result.maxStreak}`}
         </p>
-        <div className="flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full mt-3 mb-6">
+        <div className="flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full mt-3">
           <Zap className="h-5 w-5 fill-current" />
           <span className="font-bold">+{result.xpEarned} XP Didapatkan!</span>
-                  {result.newBadges?.length > 0 && (
-          <div className="mb-6 flex flex-wrap justify-center gap-3">
+        </div>
+        {result.newBadges?.length > 0 && (
+          <div className="mt-4 flex flex-wrap justify-center gap-3">
             {result.newBadges.map((b: any) => (
               <div
                 key={b.slug}
@@ -206,7 +208,7 @@ export default function StudentLessonPage() {
             ))}
           </div>
         )}
-        </div>
+        <div className="h-6" />
         <div className="w-full max-w-md space-y-2 mb-8 text-left">
           {result.results.map((r: any, i: number) => (
             <div key={r.questionId} className="flex items-center gap-3 rounded-xl bg-card p-3 ring-1 ring-border text-sm">
@@ -251,11 +253,41 @@ export default function StudentLessonPage() {
         <div className="mx-auto max-w-3xl px-4 py-8">
           <h1 className="font-heading text-2xl md:text-3xl font-extrabold mb-6">{lesson.title}</h1>
           <LessonContent content={lesson.content} />
+
+          {lesson.quizzes?.[0] && (
+            <div className="mt-8 flex flex-wrap gap-2 text-xs font-semibold">
+              <span className="rounded-full bg-secondary px-3 py-1.5 text-muted-foreground">
+                ❓ {lesson.quizzes[0]._count.questions} pertanyaan
+              </span>
+              {lesson.quizzes[0].timeLimit && (
+                <span className="rounded-full bg-amber-500/10 px-3 py-1.5 text-amber-600">
+                  ⏱ {lesson.quizzes[0].timeLimit}s/soal
+                </span>
+              )}
+              {lesson.quizzes[0].lives && (
+                <span className="rounded-full bg-rose-500/10 px-3 py-1.5 text-rose-600">
+                  ❤ {lesson.quizzes[0].lives} nyawa
+                </span>
+              )}
+              <span className="rounded-full bg-purple-500/10 px-3 py-1.5 text-purple-600">
+                ⚡ +{lesson.quizzes[0].xpReward} XP
+              </span>
+            </div>
+          )}
+
+          {myProgress?.completed && (
+            <div className="mt-4 flex items-center gap-2 rounded-xl bg-emerald-500/10 px-4 py-3 text-sm font-semibold text-emerald-700 ring-1 ring-emerald-500/20">
+              <CheckCircle2 className="h-4 w-4" />
+              Sudah selesai • nilai {myProgress.score ?? "-"}
+            </div>
+          )}
+
           <div className="mt-10">
             {lesson.quizzes?.[0] ? (
               <Button size="lg" className="w-full font-heading text-base" onClick={startQuiz}>
                 <Play className="h-5 w-5 mr-2" />
-                Mulai Kuis: {lesson.quizzes[0].title}
+                {myProgress?.completed ? "Ulangi Kuis: " : "Mulai Kuis: "}
+                {lesson.quizzes[0].title}
               </Button>
             ) : (
               <Button size="lg" className="w-full font-heading text-base" onClick={handleCompleteNoQuiz}>
@@ -283,7 +315,7 @@ export default function StudentLessonPage() {
           <div className="flex-1 h-3 bg-secondary rounded-full overflow-hidden">
             <div
               className="h-full bg-primary transition-all duration-500 rounded-full"
-              style={{ width: `${(step / quiz.questions.length) * 100}%` }}
+              style={{ width: `${((step + (checked !== null ? 1 : 0)) / quiz.questions.length) * 100}%` }}
             ></div>
           </div>
           {secondsLeft != null && (
@@ -353,12 +385,15 @@ export default function StudentLessonPage() {
             </div>
             <div className="flex flex-wrap justify-center gap-2">
               {scrambled.map((letter: string, i: number) => {
-                const used = (input ?? "").length > 0 && false; // tiles are re-clickable pool
                 return (
                   <button
                     key={i}
                     disabled={checked !== null}
-                    onClick={() => setInput((prev: string) => (prev ?? "") + String(letter))}
+                    onClick={() =>
+                      setInput((prev: string) =>
+                        (prev ?? "").length >= scrambled.length ? prev : (prev ?? "") + String(letter)
+                      )
+                    }
                     className="flex h-12 w-12 items-center justify-center rounded-xl border-2 border-border bg-card font-heading text-xl font-bold uppercase hover:border-primary hover:bg-primary/5"
                   >
                     {String(letter)}

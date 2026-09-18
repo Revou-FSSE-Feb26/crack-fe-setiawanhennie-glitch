@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/UI/button";
-import { Search, Flame, Lock, ChevronRight, Sparkles } from "lucide-react";
+import { Search, Flame, Lock, ChevronRight, Sparkles, BookOpen, CheckCircle2 } from "lucide-react";
 import { fetchStudentStats } from "@/lib/auth-client";
 
 export default function StudentCoursesPage() {
@@ -53,79 +53,125 @@ export default function StudentCoursesPage() {
         />
       </div>
 
-      {/* Grid */}
-      <div className="grid gap-5 sm:grid-cols-2">
-        {courses.map((course: any) => {
-          const progress = course.total ? Math.round((course.done / course.total) * 100) : 0;
-          const targetId = course.nextLessonId || course.firstLessonId;
-          return (
-            <div
-              key={course.id}
-              className={`group relative rounded-3xl bg-card p-6 ring-1 ring-border transition-all hover:shadow-lg hover:-translate-y-1 ${
-                course.isLocked ? "opacity-70" : ""
-              }`}
-            >
-              {course.isLocked && (
-                <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-muted px-3 py-1 rounded-full text-xs font-bold text-muted-foreground">
-                  <Lock className="h-3 w-3" />
-                  Terkunci
+      {/* Grid with loading / empty / results states */}
+      {!stats ? (
+        <div className="grid gap-5 sm:grid-cols-2">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="h-64 animate-pulse rounded-3xl bg-card ring-1 ring-border" />
+          ))}
+        </div>
+      ) : courses.length === 0 ? (
+        <div className="rounded-3xl bg-card p-12 text-center ring-1 ring-border">
+          <p className="text-4xl">🎒</p>
+          <p className="mt-3 font-heading text-lg font-bold">
+            {allCourses.length === 0 ? "Belum ada kursus untuk kelasmu" : `Tidak ditemukan kursus "${query}"`}
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {allCourses.length === 0
+              ? "Gurumu akan segera menambahkan materi — pantau terus!"
+              : "Coba kata kunci lain."}
+          </p>
+        </div>
+      ) : (
+        <div className="grid gap-5 sm:grid-cols-2">
+          {courses.map((course: any, i: number) => {
+            const progress = course.total ? Math.round((course.done / course.total) * 100) : 0;
+            const targetId = course.nextLessonId || course.firstLessonId;
+            const finished = course.total > 0 && course.done === course.total;
+            const fresh = course.done === 0;
+            return (
+              <div
+                key={course.id}
+                style={{ animationDelay: `${i * 80}ms` }}
+                className={`group relative animate-rise rounded-3xl bg-card p-6 ring-1 ring-border transition-all hover:shadow-lg hover:-translate-y-1 ${
+                  course.isLocked ? "opacity-70" : ""
+                }`}
+              >
+                {/* Status chip */}
+                <div className="absolute right-4 top-4">
+                  {course.isLocked ? (
+                    <span className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-bold text-muted-foreground">
+                      <Lock className="h-3 w-3" />
+                      Terkunci
+                    </span>
+                  ) : finished ? (
+                    <span className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-600">
+                      <CheckCircle2 className="h-3 w-3" />
+                      Selesai
+                    </span>
+                  ) : fresh ? (
+                    <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">✨ Baru</span>
+                  ) : (
+                    <span className="rounded-full bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-600">⏳ Berjalan</span>
+                  )}
                 </div>
-              )}
-              <div className="flex items-start gap-4">
-                <div className={`flex h-14 w-14 items-center justify-center rounded-2xl text-3xl ${course.color}`}>
-                  {course.emoji}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-heading text-xl font-bold truncate">{course.title}</h3>
-                  <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{course.description}</p>
-                </div>
-              </div>
 
-              <div className="mt-5">
-                <div className="flex justify-between text-xs font-bold mb-2">
-                  <span className="text-muted-foreground">
-                    {course.done} dari {course.total} pelajaran
-                  </span>
-                  <span className="text-primary">{progress}%</span>
+                <div className="flex items-start gap-4">
+                  <div className={`flex h-14 w-14 items-center justify-center rounded-2xl text-3xl transition-transform group-hover:scale-110 ${course.color}`}>
+                    {course.emoji}
+                  </div>
+                  <div className="flex-1 min-w-0 pr-20">
+                    <h3 className="font-heading text-xl font-bold truncate">{course.title}</h3>
+                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{course.description}</p>
+                  </div>
                 </div>
-                <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
-                  <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }}></div>
-                </div>
-              </div>
 
-              <div className="mt-5">
-                {course.isLocked ? (
-                  <Button disabled className="w-full" variant="outline">
-                    <Lock className="h-4 w-4 mr-2" />
-                    Terkunci
-                  </Button>
-                ) : course.done === course.total && course.total > 0 ? (
-                  <Button asChild className="w-full font-heading" variant="secondary">
-                    <Link href={`/student/lesson?id=${course.firstLessonId}`}>
-                      <Sparkles className="h-4 w-4 mr-2" />
-                      Ulangi Kursus
-                    </Link>
-                  </Button>
-                ) : course.done === 0 ? (
-                  <Button asChild className="w-full font-heading">
-                    <Link href={`/student/lesson?id=${course.firstLessonId}`}>
-                      Mulai Belajar
-                      <ChevronRight className="h-4 w-4 ml-2" />
-                    </Link>
-                  </Button>
-                ) : (
-                  <Button asChild className="w-full font-heading">
-                    <Link href={`/student/lesson?id=${course.nextLessonId}`}>
-                      Lanjutkan
-                      <ChevronRight className="h-4 w-4 ml-2" />
-                    </Link>
-                  </Button>
-                )}
+                <p className="mt-3 flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+                  <BookOpen className="h-3.5 w-3.5" />
+                  {course.total} pelajaran • {course.done} selesai
+                </p>
+
+                <div className="mt-3">
+                  <div className="flex justify-between text-xs font-bold mb-2">
+                    <span className="text-muted-foreground">Progress</span>
+                    <span className="text-primary">{progress}%</span>
+                  </div>
+                  <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-primary to-purple-600 transition-all"
+                      style={{ width: `${progress}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                <div className="mt-5">
+                  {course.isLocked ? (
+                    <Button disabled className="w-full" variant="outline">
+                      <Lock className="h-4 w-4 mr-2" />
+                      Terkunci
+                    </Button>
+                  ) : !targetId ? (
+                    <Button disabled className="w-full" variant="outline">
+                      Segera hadir
+                    </Button>
+                  ) : finished ? (
+                    <Button asChild className="w-full font-heading" variant="secondary">
+                      <Link href={`/student/lesson?id=${course.firstLessonId}`}>
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        Ulangi Kursus
+                      </Link>
+                    </Button>
+                  ) : fresh ? (
+                    <Button asChild className="w-full font-heading">
+                      <Link href={`/student/lesson?id=${course.firstLessonId}`}>
+                        Mulai Belajar
+                        <ChevronRight className="h-4 w-4 ml-2" />
+                      </Link>
+                    </Button>
+                  ) : (
+                    <Button asChild className="w-full font-heading">
+                      <Link href={`/student/lesson?id=${course.nextLessonId}`}>
+                        Lanjutkan
+                        <ChevronRight className="h-4 w-4 ml-2" />
+                      </Link>
+                    </Button>
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
