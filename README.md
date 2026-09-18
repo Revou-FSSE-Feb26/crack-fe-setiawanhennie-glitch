@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NusaSkillz
 
+NusaSkillz is a gamified learning platform for Indonesian students, teachers, schools, and administrators. Students can work through courses and lessons, complete quizzes, earn XP, collect badges, and maintain learning streaks. Teachers and administrators get role-specific dashboards for managing classes, materials, grading, reports, users, and moderation.
+The frontend is built with Next.js App Router, React, TypeScript, Tailwind CSS, and Lucide icons. User authentication and dashboard data are currently provided by a separate API service running on port `3001`.
+
+## Features
+- Student registration, email verification, sign-in, and password recovery flows
+- Gamified learning experience with XP, levels, badges, streaks, and leaderboards
+- Student dashboards, course browsing, and lesson pages
+- Teacher dashboards for classes, materials, grading, reports, and settings
+- Admin dashboards for users, reports, moderation, and settings
+- Super administrator dashboard and school management views
+- Responsive interface with light and dark themes
+- Route protection and role-based redirects through Next.js middleware
+
+## Requirements
+- Node.js 20 or newer
+- npm
+- The NusaSkillz API service running at `http://localhost:3001`
+
+The frontend currently uses a fixed local API URL in `src/lib/auth-client.ts`. Start the API service before testing registration, sign-in, or authenticated dashboard features.
 ## Getting Started
 
-First, run the development server:
+Install the dependencies:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Start the development server:
+For access to the full application, make sure the backend is also available at [http://localhost:3001](http://localhost:3001).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Available Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Command | Description |
+| `npm run dev` | Start the development server on port 3000 |
+| `npm run build` | Create a production build |
+| `npm run start` | Start the production server |
+| `npm run lint` | Run ESLint |
+
+## Main Routes
+| Area | Routes |
+| --- | --- |
+| Public | `/`, `/sign-in`, `/sign-up`, `/forgot-password`, `/reset-password` |
+| Student | `/student/dashboard`, `/student/courses`, `/student/lesson` |
+| Teacher | `/teacher/dashboard`, `/teacher/classes`, `/teacher/materials`, `/teacher/grading`, `/teacher/reports`, `/teacher/settings` |
+| Admin | `/admin/dashboard`, `/admin/users`, `/admin/reports`, `/admin/settings` |
+| Super admin | `/super/dashboard`, `/super/schools` |
+
+Protected routes require a valid authentication token. The middleware redirects users to the dashboard for their role and prevents access to areas they are not authorized to view.
+## Project Structure
+
+```text
+src/
+├── app/          Next.js pages, layouts, and route groups
+├── components/   Reusable UI and home page components
+├── lib/          Authentication and shared utilities
+└── middleware.ts Authentication and role-based route protection
+```
+
+## Production
+Build and run the production frontend with:
+
+```bash
+npm run build
+npm run start
+```
+
+Before deployment, configure the API URL for the target environment in `src/lib/auth-client.ts` and ensure the backend allows requests from the deployed frontend origin.
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Next.js documentation](https://nextjs.org/docs)
+- [Next.js App Router documentation](https://nextjs.org/docs/app)
+- [Tailwind CSS documentation](https://tailwindcss.com/docs)
